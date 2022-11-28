@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ func TestAverageWritePerformance(t *testing.T) {
 		start := time.Now()
 		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		end := time.Now()
 		totalTime += end.Sub(start)
@@ -43,7 +42,7 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 	}
 
@@ -51,7 +50,7 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 		start := time.Now()
 		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		end := time.Now()
 		totalTime += end.Sub(start)
