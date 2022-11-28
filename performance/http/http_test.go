@@ -7,8 +7,8 @@ import (
 
 func TestSendMessage(t *testing.T) {
 	var iterationsMap = map[int]time.Duration{
-		100:  time.Duration(20 * time.Millisecond),
-		1000: time.Duration(70 * time.Millisecond),
+		100:  time.Duration(30 * time.Millisecond),
+		1000: time.Duration(200 * time.Millisecond),
 	}
 
 	for numIters, expectedTime := range iterationsMap {
