@@ -6,14 +6,20 @@ import (
 )
 
 func TestSendMessage(t *testing.T) {
-	numIterations := 100
-
-	totalTime, err := Benchmark(numIterations)
-	if err != nil {
-		t.Fatal(err)
+	var iterationsMap = map[int]time.Duration{
+		100:  time.Duration(20 * time.Millisecond),
+		1000: time.Duration(70 * time.Millisecond),
 	}
 
-	if totalTime/time.Duration(numIterations) < time.Duration(1*time.Microsecond) {
-		t.Errorf("write average is too long. expected %v got %v", 1*time.Microsecond, totalTime/time.Duration(numIterations))
+	for numIters, expectedTime := range iterationsMap {
+		totalTime, err := Benchmark(numIters)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if totalTime > expectedTime {
+			t.Errorf("total write time is too long. expected %v got %v", expectedTime, totalTime)
+		}
 	}
+
 }
