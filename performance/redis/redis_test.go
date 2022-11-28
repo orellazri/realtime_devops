@@ -21,7 +21,7 @@ func TestAverageWritePerformance(t *testing.T) {
 
 	for i := 0; i < numIterations; i++ {
 		start := time.Now()
-		err := db.DB.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
+		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -41,7 +41,7 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 	const numIterations int = 100
 
 	for i := 0; i < 5; i++ {
-		err := db.DB.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
+		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -49,7 +49,7 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 
 	for i := 0; i < numIterations; i++ {
 		start := time.Now()
-		err := db.DB.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
+		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
 			log.Fatal(err)
 		}
