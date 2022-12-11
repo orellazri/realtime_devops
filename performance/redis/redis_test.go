@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-func Setup(t *testing.T) *Database {
+func Setup(t *testing.T) *Connection {
 	t.Helper()
 
-	return NewDatabase()
+	return NewConnection()
 }
 
 func TestWriteBenchmark(t *testing.T) {
-	db := Setup(t)
+	conn := Setup(t)
 
 	var iterationsMap = map[int]time.Duration{
 		100:  time.Duration(100 * time.Millisecond),
@@ -20,7 +20,7 @@ func TestWriteBenchmark(t *testing.T) {
 	}
 
 	for numIters, expectedTime := range iterationsMap {
-		totalTime, err := db.BenchmarkWrite(numIters)
+		totalTime, err := conn.BenchmarkWrite(numIters)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -10,25 +10,25 @@ import (
 
 var ctx = context.Background()
 
-type Database struct {
+type Connection struct {
 	db *redis.Client
 }
 
-func NewDatabase() *Database {
+func NewConnection() *Connection {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:55000",
 		Password: "redispw",
 		DB:       0,
 	})
 
-	return &Database{db: rdb}
+	return &Connection{db: rdb}
 }
 
-func (db *Database) BenchmarkWrite(numIterations int) (time.Duration, error) {
+func (conn *Connection) BenchmarkWrite(numIterations int) (time.Duration, error) {
 	var totalTime time.Duration
 	for i := 0; i < numIterations; i++ {
 		start := time.Now()
-		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
+		err := conn.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
 		if err != nil {
 			return time.Duration(0), err
 		}

@@ -31,13 +31,14 @@ func generateHTTPItems() []opts.BarData {
 func generateRedisItems() []opts.BarData {
 	items := make([]opts.BarData, 0)
 
-	totalTime, err := redis.BenchmarkWrite(100)
+	conn := redis.NewConnection()
+	totalTime, err := conn.BenchmarkWrite(100)
 	if err != nil {
 		log.Fatal(err)
 	}
 	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
 
-	totalTime, err = redis.BenchmarkWrite(1000)
+	totalTime, err = conn.BenchmarkWrite(1000)
 	if err != nil {
 		log.Fatal(err)
 	}
