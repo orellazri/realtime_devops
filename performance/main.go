@@ -66,8 +66,8 @@ func main() {
 	)
 
 	chart.SetXAxis([]string{"100", "1000"}).
-		AddSeries("HTTP", generateHTTPItems()).
-		AddSeries("Redis", generateRedisItems()).
+		AddSeries("Local HTTP", generateHTTPItems()).
+		AddSeries("Local Redis", generateRedisItems()).
 		SetSeriesOptions(
 			charts.WithLabelOpts(opts.Label{
 				Show:      true,
