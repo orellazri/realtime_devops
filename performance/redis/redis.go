@@ -25,7 +25,7 @@ func NewDatabase() *Database {
 	return db
 }
 
-func BenchmarkWrite(numIterations int, warmup bool) (time.Duration, error) {
+func BenchmarkWrite(numIterations int) (time.Duration, error) {
 	db := NewDatabase()
 
 	var totalTime time.Duration

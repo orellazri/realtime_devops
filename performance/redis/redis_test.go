@@ -18,7 +18,7 @@ func TestWriteBenchmark(t *testing.T) {
 	}
 
 	for numIters, expectedTime := range iterationsMap {
-		totalTime, err := BenchmarkWrite(numIters, false)
+		totalTime, err := BenchmarkWrite(numIters)
 		if err != nil {
 			t.Fatal(err)
 		}

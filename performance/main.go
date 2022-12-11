@@ -7,6 +7,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/orellazri/realtime_devops/performance/http"
+	"github.com/orellazri/realtime_devops/performance/redis"
 )
 
 func generateHTTPItems() []opts.BarData {
@@ -29,8 +30,19 @@ func generateHTTPItems() []opts.BarData {
 
 func generateRedisItems() []opts.BarData {
 	items := make([]opts.BarData, 0)
-	items = append(items, opts.BarData{Value: 1})
-	items = append(items, opts.BarData{Value: 1})
+
+	totalTime, err := redis.BenchmarkWrite(100)
+	if err != nil {
+		log.Fatal(err)
+	}
+	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
+
+	totalTime, err = redis.BenchmarkWrite(1000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
+
 	return items
 }
 
