@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +8,19 @@ import (
 	"net/url"
 	"time"
 )
+
+type Connection struct {
+	srv *httptest.Server
+}
+
+func NewConnection() *Connection {
+	srv := httptest.NewServer(http.HandlerFunc(handlePost))
+	return &Connection{srv}
+}
+
+func (conn *Connection) Close() {
+	conn.srv.Close()
+}
 
 func handlePost(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
@@ -18,6 +30,24 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte(r.FormValue("message")))
+}
+
+func (conn *Connection) BenchmarkWrite(numIterations int) (time.Duration, error) {
+	var totalTime time.Duration
+	for i := 0; i < numIterations; i++ {
+		start := time.Now()
+		res, err := http.PostForm(conn.srv.URL+"/", url.Values{
+			"message": {"testing"},
+		})
+		if err != nil {
+			return time.Duration(0), err
+		}
+		res.Body.Close()
+		end := time.Now()
+		totalTime += end.Sub(start)
+	}
+
+	return totalTime, nil
 }
 
 func Benchmark(numIterations int) (time.Duration, error) {
@@ -47,7 +77,7 @@ func Benchmark(numIterations int) (time.Duration, error) {
 
 		actual := string(out)
 		if actual != expected {
-			return time.Duration(0), errors.New(fmt.Sprintf("wrong response. expected %v got %v", expected, actual))
+			return time.Duration(0), fmt.Errorf("wrong response. expected %v got %v", expected, actual)
 		}
 	}
 

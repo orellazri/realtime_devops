@@ -6,63 +6,44 @@ import (
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	"github.com/orellazri/realtime_devops/performance/helpers"
 	"github.com/orellazri/realtime_devops/performance/http"
 	"github.com/orellazri/realtime_devops/performance/kafka"
 	"github.com/orellazri/realtime_devops/performance/redis"
 )
 
 func generateHTTPItems() []opts.BarData {
-	items := make([]opts.BarData, 0)
+	conn := http.NewConnection()
 
-	totalTime, err := http.Benchmark(100)
-	if err != nil {
-		log.Fatal(err)
-	}
-	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
-
-	totalTime, err = http.Benchmark(1000)
-	if err != nil {
-		log.Fatal(err)
-	}
-	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
-
-	return items
+	return generateItems(conn)
 }
 
 func generateRedisItems() []opts.BarData {
-	items := make([]opts.BarData, 0)
-
 	conn := redis.NewConnection()
-	totalTime, err := conn.BenchmarkWrite(100)
-	if err != nil {
-		log.Fatal(err)
-	}
-	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
 
-	totalTime, err = conn.BenchmarkWrite(1000)
-	if err != nil {
-		log.Fatal(err)
-	}
-	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
-
-	return items
+	return generateItems(conn)
 }
 
 func generateKafkaItems() []opts.BarData {
-	items := make([]opts.BarData, 0)
-
 	conn, err := kafka.NewConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer conn.Close()
 
-	totalTime, err := conn.BenchmarkWrite(100)
+	return generateItems(conn)
+}
+
+func generateItems(b helpers.Benchmarkable) []opts.BarData {
+	items := make([]opts.BarData, 0)
+
+	totalTime, err := b.BenchmarkWrite(100)
 	if err != nil {
 		log.Fatal(err)
 	}
 	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
 
-	totalTime, err = conn.BenchmarkWrite(1000)
+	totalTime, err = b.BenchmarkWrite(1000)
 	if err != nil {
 		log.Fatal(err)
 	}
