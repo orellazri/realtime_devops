@@ -28,8 +28,11 @@ func TestAverageWritePerformance(t *testing.T) {
 		totalTime += end.Sub(start)
 	}
 
-	if totalTime/time.Duration(numIterations) > time.Duration(1*time.Millisecond) {
-		t.Errorf("write average is too long. expected %v got %v", 1*time.Millisecond, totalTime/time.Duration(numIterations))
+	actual := totalTime / time.Duration(numIterations)
+	expected := 1 * time.Millisecond
+
+	if actual > time.Duration(expected) {
+		t.Errorf("write average is too long. expected %v got %v", expected, actual)
 	}
 }
 
@@ -37,7 +40,7 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 	db := Setup(t)
 
 	var totalTime time.Duration
-	const numIterations int = 100
+	numIterations := 100
 
 	for i := 0; i < 5; i++ {
 		err := db.db.Set(ctx, strconv.FormatInt(int64(i), 10), "value", 0).Err()
@@ -56,7 +59,10 @@ func TestAverageWritePerformanceAfterWarmup(t *testing.T) {
 		totalTime += end.Sub(start)
 	}
 
-	if totalTime/time.Duration(numIterations) > time.Duration(400*time.Microsecond) {
-		t.Errorf("write average is too long. expected %v got %v", 400*time.Microsecond, totalTime/time.Duration(numIterations))
+	actual := totalTime / time.Duration(numIterations)
+	expected := 1 * time.Millisecond
+
+	if actual > time.Duration(expected) {
+		t.Errorf("write average is too long. expected %v got %v", expected, actual)
 	}
 }
