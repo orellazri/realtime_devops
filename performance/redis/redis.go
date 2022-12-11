@@ -21,13 +21,10 @@ func NewDatabase() *Database {
 		DB:       0,
 	})
 
-	db := &Database{db: rdb}
-	return db
+	return &Database{db: rdb}
 }
 
-func BenchmarkWrite(numIterations int) (time.Duration, error) {
-	db := NewDatabase()
-
+func (db *Database) BenchmarkWrite(numIterations int) (time.Duration, error) {
 	var totalTime time.Duration
 	for i := 0; i < numIterations; i++ {
 		start := time.Now()

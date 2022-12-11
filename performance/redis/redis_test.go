@@ -12,13 +12,15 @@ func Setup(t *testing.T) *Database {
 }
 
 func TestWriteBenchmark(t *testing.T) {
+	db := Setup(t)
+
 	var iterationsMap = map[int]time.Duration{
 		100:  time.Duration(100 * time.Millisecond),
 		1000: time.Duration(1000 * time.Millisecond),
 	}
 
 	for numIters, expectedTime := range iterationsMap {
-		totalTime, err := BenchmarkWrite(numIters)
+		totalTime, err := db.BenchmarkWrite(numIters)
 		if err != nil {
 			t.Fatal(err)
 		}
