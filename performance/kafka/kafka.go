@@ -18,7 +18,7 @@ func NewConnection() (*Connection, error) {
 		return nil, err
 	}
 
-	return &Connection{conn: conn}, nil
+	return &Connection{conn}, nil
 }
 
 func (conn *Connection) Close() error {
