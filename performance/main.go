@@ -7,6 +7,7 @@ import (
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 	"github.com/orellazri/realtime_devops/performance/http"
+	"github.com/orellazri/realtime_devops/performance/kafka"
 	"github.com/orellazri/realtime_devops/performance/redis"
 )
 
@@ -47,6 +48,29 @@ func generateRedisItems() []opts.BarData {
 	return items
 }
 
+func generateKafkaItems() []opts.BarData {
+	items := make([]opts.BarData, 0)
+
+	conn, err := kafka.NewConnection()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	totalTime, err := conn.BenchmarkWrite(100)
+	if err != nil {
+		log.Fatal(err)
+	}
+	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
+
+	totalTime, err = conn.BenchmarkWrite(1000)
+	if err != nil {
+		log.Fatal(err)
+	}
+	items = append(items, opts.BarData{Value: totalTime.Milliseconds()})
+
+	return items
+}
+
 func main() {
 	chart := charts.NewBar()
 
@@ -69,6 +93,7 @@ func main() {
 	chart.SetXAxis([]string{"100", "1000"}).
 		AddSeries("Local HTTP", generateHTTPItems()).
 		AddSeries("Local Redis", generateRedisItems()).
+		AddSeries("Local Kafka", generateKafkaItems()).
 		SetSeriesOptions(
 			charts.WithLabelOpts(opts.Label{
 				Show:      true,
