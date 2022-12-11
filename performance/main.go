@@ -53,10 +53,12 @@ func main() {
 		charts.WithTitleOpts(opts.Title{
 			Title:    "Message Transport Performance",
 			Subtitle: "Performance benchmark of different message transport infrastructures",
-			Right:    "40%",
+			Right:    "50%",
 		}),
+		charts.WithTooltipOpts(opts.Tooltip{Show: true}),
+		charts.WithLegendOpts(opts.Legend{Right: "80%"}),
 		charts.WithXAxisOpts(opts.XAxis{
-			Name: "No. Iterations",
+			Name: "Iterations",
 		}),
 		charts.WithYAxisOpts(opts.YAxis{
 			AxisLabel: &opts.AxisLabel{Show: true, Formatter: "{value} ms"},
@@ -68,8 +70,9 @@ func main() {
 		AddSeries("Redis", generateRedisItems()).
 		SetSeriesOptions(
 			charts.WithLabelOpts(opts.Label{
-				Show:     true,
-				Position: "inside",
+				Show:      true,
+				Position:  "inside",
+				Formatter: "{a}\n{c}",
 			}),
 		)
 
