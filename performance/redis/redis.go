@@ -16,7 +16,7 @@ type Connection struct {
 
 func NewConnection() *Connection {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:55000",
+		Addr:     "localhost:6379",
 		Password: "redispw",
 		DB:       0,
 	})

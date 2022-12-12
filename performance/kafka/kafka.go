@@ -13,7 +13,7 @@ type Connection struct {
 }
 
 func NewConnection() (*Connection, error) {
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "192.168.1.211:9092", "benchmark", 0)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "127.0.0.1:29092", "benchmark", 0)
 	if err != nil {
 		return nil, err
 	}

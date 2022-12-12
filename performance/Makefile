@@ -1,10 +1,12 @@
 .PHONY: charts http redis kafka
 
-DOCKER_REDIS=docker run -d --rm --name=redis --env=REDIS_PASSWORD=redispw --volume=/data --workdir=/data -p 55000:6379 redis
-DOCKER_STOP=docker stop redis
+DOCKER_REDIS=docker compose -f compose/redis.yml up -d
+DOCKER_KAFKA=docker compose -f compose/kafka.yml up -d
+DOCKER_STOP=docker ps -aq | xargs docker stop | xargs docker rm
 
 charts:
 	$(DOCKER_REDIS)
+	$(DOCKER_KAFKA)
 	go run main.go; $(DOCKER_STOP)
 
 test: http redis kafka
@@ -17,4 +19,6 @@ redis:
 	go test ./redis -count=1; $(DOCKER_STOP)
 
 kafka:
-	go test ./kafka -count=1
+	$(DOCKER_KAFKA)
+	sleep 10
+	go test ./kafka -count=1; $(DOCKER_STOP)
