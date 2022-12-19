@@ -1,7 +1,7 @@
 .PHONY: charts http redis kafka
 
-DOCKER_REDIS=docker compose -f compose/redis.yml up -d
-DOCKER_KAFKA=docker compose -f compose/kafka.yml up -d
+DOCKER_REDIS=docker compose -f ../compose/redis.yml up -d
+DOCKER_KAFKA=docker compose -f ../compose/kafka.yml up -d
 DOCKER_STOP=docker ps -aq | xargs docker stop | xargs docker rm
 
 charts:
