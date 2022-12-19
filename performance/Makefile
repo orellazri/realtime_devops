@@ -7,6 +7,7 @@ DOCKER_STOP=docker ps -aq | xargs docker stop | xargs docker rm
 charts:
 	$(DOCKER_REDIS)
 	$(DOCKER_KAFKA)
+	sleep 10
 	go run main.go; $(DOCKER_STOP)
 
 test: http redis kafka
