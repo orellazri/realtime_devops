@@ -47,11 +47,12 @@ func main() {
 
 	// Receive Kafka messages
 	for {
+		start := time.Now()
 		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("[Kafka] Received (offset %d): %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+		log.Printf("[Kafka - %v] Received (offset %d): %s = %s\n", time.Since(start), m.Offset, string(m.Key), string(m.Value))
 		coords := strings.Split(string(m.Value), ",")
 		x, err := strconv.Atoi(coords[0])
 		if err != nil {
@@ -65,6 +66,7 @@ func main() {
 		// Perform some computation
 		x *= 10
 		y *= 10
+		log.Printf("[Core - %v] Computed %d,%d", time.Since(start), x, y)
 
 		// Send message to RabbitMQ
 		body := fmt.Sprintf("%d,%d", x, y)
@@ -80,6 +82,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("[RabbitMQ] Sent: %s\n", body)
+		log.Printf("[RabbitMQ - %v] Sent: %s\n", time.Since(start), body)
 	}
 }
