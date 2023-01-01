@@ -64,11 +64,13 @@ func main() {
 		}
 
 		// Perform some computation
+		start = time.Now()
 		x *= 10
 		y *= 10
 		log.Printf("[Core - %v] Computed %d,%d", time.Since(start), x, y)
 
 		// Send message to RabbitMQ
+		start = time.Now()
 		body := fmt.Sprintf("%d,%d", x, y)
 		err = ch.PublishWithContext(ctx,
 			"",     // exchange
