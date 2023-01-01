@@ -1,6 +1,6 @@
 .PHONY: start
 
-DOCKER_KAFKA=docker compose -f ../compose/kafka.yml up -d
+DOCKER_KAFKA=cd ../compose/kafka && docker compose up -d
 DOCKER_STOP=docker ps -aq | xargs docker stop | xargs docker rm
 
 start:
