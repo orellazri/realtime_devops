@@ -1,0 +1,13 @@
+{
+  "name": "receiver",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Orel Lazri",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3"
+  }
+}
