@@ -1,7 +1,13 @@
 const amqp = require("amqplib/callback_api");
 const moment = require("moment");
 
-amqp.connect("amqp://guest:guest@localhost:5672", function (error0, connection) {
+var rabbitmqUrl = process.env.RABBITMQ_URL;
+if (!rabbitmqUrl) {
+  console.error("RABBITMQ_URL env var not found");
+  process.exit(1);
+}
+
+amqp.connect(rabbitmqUrl, function (error0, connection) {
   if (error0) {
     throw error0;
   }
@@ -33,7 +39,7 @@ amqp.connect("amqp://guest:guest@localhost:5672", function (error0, connection) 
             let x = msgContent[1];
             let y = msgContent[2];
             console.log("[RabbitMQ] %s,%s", x, y);
-            msgTime = moment(msgTime).add(2,"hours");
+            msgTime = moment(msgTime);
             let now = moment();
             let difference = moment.duration(now.diff(msgTime)).asMilliseconds();
             console.log(`\t${difference}ms`);
