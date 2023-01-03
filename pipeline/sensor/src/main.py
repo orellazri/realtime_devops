@@ -1,7 +1,9 @@
+from datetime import datetime
+import os
 import signal
 import socket
+import sys
 import time
-from datetime import datetime
 
 from confluent_kafka import Producer
 
@@ -11,14 +13,20 @@ if __name__ == "__main__":
     def handle_sigint(*args):
         print(args)
         producer.flush()
-        exit(0)
+        exit(0)    
+
+    kafka_url = os.environ.get("KAFKA_URL")
+    if not kafka_url:
+        print("KAFKA_URL env var not found", file=sys.stderr)
+        exit(1)
+
+    producer = Producer({"bootstrap.servers": "127.0.0.1:29092",
+                         "client.id": socket.gethostname()})
 
     signal.signal(signal.SIGINT, handle_sigint)
 
     sensor = Sensor()
 
-    producer = Producer({"bootstrap.servers": "127.0.0.1:29092",
-                         "client.id": socket.gethostname()})
     while True:
         sensor.update()
         now = datetime.utcnow().isoformat()
