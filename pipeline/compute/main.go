@@ -14,9 +14,15 @@ import (
 )
 
 func main() {
+	// Get environemnt varaibles
 	kafkaUrl := os.Getenv("KAFKA_URL")
 	if kafkaUrl == "" {
 		log.Fatal("KAFKA_URL env var not found")
+	}
+
+	rabbitmqUrl := os.Getenv("RABBITMQ_URL")
+	if rabbitmqUrl == "" {
+		log.Fatal("RABBITMQ_URL env var not found")
 	}
 
 	// Initialize Kafka
@@ -27,7 +33,7 @@ func main() {
 	})
 
 	// Initialize RabbitMQ
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial(rabbitmqUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
