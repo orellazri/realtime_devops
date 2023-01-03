@@ -47,11 +47,11 @@ func main() {
 
 	// Receive Kafka messages
 	for {
-		start := time.Now()
 		m, err := reader.ReadMessage(context.Background())
 		if err != nil {
 			log.Fatal(err)
 		}
+		start := time.Now()
 		msg := strings.Split(string(m.Value), ",")
 		msgTime := msg[0]
 		x, err := strconv.Atoi(msg[1])
