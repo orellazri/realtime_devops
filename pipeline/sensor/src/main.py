@@ -1,6 +1,7 @@
 import signal
 import socket
 import time
+from datetime import datetime
 
 from confluent_kafka import Producer
 
@@ -20,6 +21,7 @@ if __name__ == "__main__":
                          "client.id": socket.gethostname()})
     while True:
         sensor.update()
+        now = datetime.utcnow().isoformat()
         x, y = sensor.get_coords()
-        producer.produce("pipeline", key="coords", value=f"{x},{y}")
+        producer.produce("pipeline", key="coords", value=f"{now},{x},{y}")
         time.sleep(0.1)

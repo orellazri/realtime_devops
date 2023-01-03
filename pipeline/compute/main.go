@@ -52,26 +52,27 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("[Kafka - %v] Received (offset %d): %s = %s\n", time.Since(start), m.Offset, string(m.Key), string(m.Value))
-		coords := strings.Split(string(m.Value), ",")
-		x, err := strconv.Atoi(coords[0])
+		msg := strings.Split(string(m.Value), ",")
+		msgTime := msg[0]
+		x, err := strconv.Atoi(msg[1])
 		if err != nil {
 			log.Fatal(err)
 		}
-		y, err := strconv.Atoi(coords[1])
+		y, err := strconv.Atoi(msg[2])
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("[Kafka - %v] Received (offset %d) = %s,%d,%d\n", time.Since(start), m.Offset, msgTime, x, y)
 
 		// Perform some computation
 		start = time.Now()
 		x *= 10
 		y *= 10
-		log.Printf("[Core - %v] Computed %d,%d", time.Since(start), x, y)
+		log.Printf("\t[Core - %v] Computed %d,%d", time.Since(start), x, y)
 
 		// Send message to RabbitMQ
 		start = time.Now()
-		body := fmt.Sprintf("%d,%d", x, y)
+		body := fmt.Sprintf("%s,%d,%d", msgTime, x, y)
 		err = ch.PublishWithContext(ctx,
 			"",     // exchange
 			q.Name, // routing key
@@ -84,6 +85,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("[RabbitMQ - %v] Sent: %s\n", time.Since(start), body)
+		log.Printf("\t\t[RabbitMQ - %v] Sent: %s\n", time.Since(start), body)
 	}
 }

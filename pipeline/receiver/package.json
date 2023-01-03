@@ -8,6 +8,7 @@
     "start": "node main.js"
   },
   "dependencies": {
-    "amqplib": "^0.10.3"
+    "amqplib": "^0.10.3",
+    "moment": "^2.29.4"
   }
 }

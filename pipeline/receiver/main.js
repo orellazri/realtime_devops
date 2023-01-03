@@ -1,4 +1,5 @@
 const amqp = require("amqplib/callback_api");
+const moment = require("moment");
 
 amqp.connect("amqp://guest:guest@localhost:5672", function (error0, connection) {
   if (error0) {
@@ -27,7 +28,15 @@ amqp.connect("amqp://guest:guest@localhost:5672", function (error0, connection) 
         q.queue,
         function (msg) {
           if (msg.content) {
-            console.log("[x] %s", msg.content.toString());
+            let msgContent = msg.content.toString().split(",");
+            let msgTime = msgContent[0];
+            let x = msgContent[1];
+            let y = msgContent[2];
+            console.log("[RabbitMQ] %s,%s", x, y);
+            msgTime = moment(msgTime).add(2,"hours");
+            let now = moment();
+            let difference = moment.duration(now.diff(msgTime)).asMilliseconds();
+            console.log(`\t${difference}ms`);
           }
         },
         { noAck: false }
