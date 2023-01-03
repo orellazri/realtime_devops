@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -13,9 +14,14 @@ import (
 )
 
 func main() {
+	kafkaUrl := os.Getenv("KAFKA_URL")
+	if kafkaUrl == "" {
+		log.Fatal("KAFKA_URL env var not found")
+	}
+
 	// Initialize Kafka
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:     []string{"localhost:29092"},
+		Brokers:     []string{kafkaUrl},
 		Topic:       "pipeline",
 		StartOffset: -1,
 	})
