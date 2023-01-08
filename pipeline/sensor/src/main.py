@@ -13,7 +13,7 @@ if __name__ == "__main__":
     def handle_sigint(*args):
         print(args)
         producer.flush()
-        exit(0)    
+        exit(0)
 
     kafka_url = os.environ.get("KAFKA_URL")
     if not kafka_url:
