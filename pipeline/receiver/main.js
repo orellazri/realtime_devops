@@ -26,6 +26,7 @@ amqp.connect(rabbitmqUrl, function (error0, connection) {
       if (error2) {
         throw error2;
       }
+
       q.queue = "compute";
       console.log("Waiting for messages in %s. To exit press CTRL+C", q.queue);
       channel.bindQueue(q.queue, exchange, "");
