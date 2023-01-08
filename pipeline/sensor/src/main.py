@@ -20,7 +20,7 @@ if __name__ == "__main__":
         print("KAFKA_URL env var not found", file=sys.stderr)
         exit(1)
 
-    producer = Producer({"bootstrap.servers": "127.0.0.1:29092",
+    producer = Producer({"bootstrap.servers": kafka_url,
                          "client.id": socket.gethostname()})
 
     signal.signal(signal.SIGINT, handle_sigint)
