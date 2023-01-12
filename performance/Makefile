@@ -8,7 +8,7 @@ charts:
 	$(DOCKER_REDIS)
 	$(DOCKER_KAFKA)
 	sleep 10
-	go run main.go; $(DOCKER_STOP)
+	go run main.go
 
 test: http redis kafka
 
@@ -17,9 +17,9 @@ http:
 
 redis:
 	$(DOCKER_REDIS)
-	go test ./redis -count=1; $(DOCKER_STOP)
+	go test ./redis -count=1
 
 kafka:
 	$(DOCKER_KAFKA)
 	sleep 10
-	go test ./kafka -count=1; $(DOCKER_STOP)
+	go test ./kafka -count=1
