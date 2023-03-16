@@ -1,3 +1,5 @@
+import { exec } from "child_process";
+
 export const runCommand = (cmd) => {
   exec(cmd, (error, stdout, stderr) => {
     if (error) {

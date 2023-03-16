@@ -18,8 +18,8 @@ let id = 0;
   }
 */
 app.post("/start", (req, res) => {
-  startSensor(id, "127.0.0.1:29092");
-
+  startSensor(`sensor_${id}`, "127.0.0.1:29092");
+  id++;
   // for (let service of req.body.data) {
   // }
 
