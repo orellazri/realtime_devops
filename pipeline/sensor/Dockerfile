@@ -1,11 +1,12 @@
-FROM ubuntu:latest
+FROM python:3.10
 
-ARG DEBIAN_FRONTEND=noninteractive
-
-# Install python3 and pip
-RUN apt-get update && apt-get install -y software-properties-common gcc && \
-    add-apt-repository -y ppa:deadsnakes/ppa
-RUN apt-get update && apt-get install -y python3.11 python3-pip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc git libssl-dev g++ make && \
+    cd /tmp && git clone https://github.com/edenhill/librdkafka && \
+    cd librdkafka && git checkout tags/v2.0.2 && \
+    ./configure && make && make install && \
+    ldconfig &&\
+    cd ../ && rm -rf librdkafka
 
 # Install requirements
 ADD requirements.txt .
