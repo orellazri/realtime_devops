@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "receiver"
+		},
+		{
+			"path": "playground/server"
 		}
 	],
 	"settings": {}
