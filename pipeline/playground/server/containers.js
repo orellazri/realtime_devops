@@ -1,7 +1,7 @@
-import { exec } from "child_process";
+import { execSync } from "child_process";
 
-export const runCommand = (cmd) => {
-  exec(cmd, (error, stdout, stderr) => {
+export function runCommand(cmd) {
+  execSync(cmd, (error, stdout, stderr) => {
     if (error) {
       console.log(`ERROR: ${error.message}`);
       return;
@@ -12,11 +12,15 @@ export const runCommand = (cmd) => {
     }
     console.log(`SUCCESS: ${stdout}`);
   });
-};
+}
 
-export const startSensor = (name, url) => {
+export function startSensor(name, url) {
   runCommand(`docker run --rm -d --name ${name} \
     --network host \
     -e KAFKA_URL=${url} \
     pipeline-sensor`);
-};
+}
+
+export function destroyAll(names) {
+  runCommand(`docker stop ${names.join(" ")}`);
+}

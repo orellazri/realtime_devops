@@ -1,11 +1,11 @@
 import express from "express";
-import { startSensor } from "./containers.js";
+import { destroyAll, startSensor } from "./containers.js";
 
 const app = express();
 app.use(express.json());
 
-// Global id for services started
-let id = 0;
+// Global container names for services started
+let names = [];
 
 /*
   Start a service
@@ -18,10 +18,15 @@ let id = 0;
   }
 */
 app.post("/start", (req, res) => {
-  startSensor(`sensor_${id}`, "127.0.0.1:29092");
-  id++;
-  // for (let service of req.body.data) {
-  // }
+  const name = `sensor_${names.length}`;
+  names.push(name);
+  startSensor(name, "127.0.0.1:29092");
+
+  res.send("OK");
+});
+
+app.get("/destroy", (req, res) => {
+  destroyAll(names);
 
   res.send("OK");
 });
