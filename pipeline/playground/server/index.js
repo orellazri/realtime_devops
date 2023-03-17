@@ -1,5 +1,5 @@
 import express from "express";
-import { startSensor, stopAll } from "./services.js";
+import { startCompute, startSensor, stopAll } from "./services.js";
 
 const app = express();
 app.use(express.json());
@@ -18,9 +18,13 @@ let names = [];
   }
 */
 app.post("/start", (req, res) => {
-  const name = `sensor_${names.length}`;
+  let name = `sensor_${names.length}`;
   names.push(name);
   startSensor(name, "127.0.0.1:29092");
+
+  name = `compute_${names.length}`;
+  names.push(name);
+  startCompute(name, "127.0.0.1:29092", "amqp://guest:guest@127.0.0.1:5672");
 
   res.send("OK");
 });

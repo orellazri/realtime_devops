@@ -14,11 +14,19 @@ export function runCommand(cmd) {
   });
 }
 
-export function startSensor(name, url) {
+export function startSensor(name, kafka_url) {
   runCommand(`docker run --rm -d --name ${name} \
     --network host \
-    -e KAFKA_URL=${url} \
+    -e KAFKA_URL=${kafka_url} \
     pipeline-sensor`);
+}
+
+export function startCompute(name, kafka_url, rabbitmq_url) {
+  runCommand(`docker run --rm -d --name ${name} \
+    --network host \
+    -e KAFKA_URL=${kafka_url} \
+    -e RABBITMQ_URL="${rabbitmq_url}" \
+    pipeline-compute`);
 }
 
 export function stopAll(names) {
