@@ -1,5 +1,5 @@
 import express from "express";
-import { destroyAll, startSensor } from "./containers.js";
+import { startSensor, stopAll } from "./containers.js";
 
 const app = express();
 app.use(express.json());
@@ -25,8 +25,11 @@ app.post("/start", (req, res) => {
   res.send("OK");
 });
 
-app.get("/destroy", (req, res) => {
-  destroyAll(names);
+app.get("/stop", (req, res) => {
+  if (names.length > 0) {
+    stopAll(names);
+    names = [];
+  }
 
   res.send("OK");
 });

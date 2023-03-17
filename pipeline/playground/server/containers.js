@@ -21,6 +21,6 @@ export function startSensor(name, url) {
     pipeline-sensor`);
 }
 
-export function destroyAll(names) {
+export function stopAll(names) {
   runCommand(`docker stop ${names.join(" ")}`);
 }
