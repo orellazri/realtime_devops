@@ -1,4 +1,5 @@
 import express from "express";
+import { urls } from "./constants.js";
 import { startCompute, startSensor, stopAll } from "./services.js";
 
 const app = express();
@@ -20,11 +21,11 @@ let names = [];
 app.post("/start", (req, res) => {
   let name = `sensor_${names.length}`;
   names.push(name);
-  startSensor(name, "127.0.0.1:29092");
+  startSensor(name, urls.kafka.local);
 
   name = `compute_${names.length}`;
   names.push(name);
-  startCompute(name, "127.0.0.1:29092", "amqp://guest:guest@127.0.0.1:5672");
+  startCompute(name, urls.kafka.local, urls.rabbitmq.local);
 
   res.send("OK");
 });
