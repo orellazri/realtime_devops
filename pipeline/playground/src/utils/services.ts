@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 
-export function runCommand(cmd) {
-  execSync(cmd, (error, stdout, stderr) => {
+function runCommand(cmd: string) {
+  execSync(cmd, (error: Error, stdout: Error, stderr: Error) => {
     if (error) {
       console.log(`ERROR: ${error.message}`);
       return;
@@ -14,14 +14,14 @@ export function runCommand(cmd) {
   });
 }
 
-export function startSensor(name, kafka_url) {
+export function startSensor(name: string, kafka_url: string) {
   runCommand(`docker run --rm -d --name ${name} \
     --network host \
     -e KAFKA_URL=${kafka_url} \
     pipeline-sensor`);
 }
 
-export function startCompute(name, kafka_url, rabbitmq_url) {
+export function startCompute(name: string, kafka_url: string, rabbitmq_url: string) {
   runCommand(`docker run --rm -d --name ${name} \
     --network host \
     -e KAFKA_URL=${kafka_url} \
@@ -29,6 +29,6 @@ export function startCompute(name, kafka_url, rabbitmq_url) {
     pipeline-compute`);
 }
 
-export function stopAll(names) {
+export function stopAll(names: string[]) {
   runCommand(`docker stop ${names.join(" ")}`);
 }
