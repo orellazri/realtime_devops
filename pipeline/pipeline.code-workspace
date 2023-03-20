@@ -10,7 +10,7 @@
 			"path": "receiver"
 		},
 		{
-			"path": "playground/server"
+			"path": "playground"
 		}
 	],
 	"settings": {}
