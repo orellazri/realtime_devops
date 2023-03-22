@@ -1,16 +1,27 @@
-import { stopAll } from "../../../utils/services";
+import { urls } from "../../../utils/constants";
+import { startCompute, startReceiver, startSensor, stopAll } from "../../../utils/services";
 import type { StartServicesRequest } from "../../../utils/types";
 
-const id = 0;
+let id = 0;
 const containerNames: string[] = [];
 
 export async function POST({ request }) {
   const req: StartServicesRequest = await request.json();
 
-  // const name = `sensor_${id}`;
-  // startSensor(name, urls.kafka.local);
-  // id++;
-  // containerNames.push(name);
+  let name = `sensor_${id}`;
+  containerNames.push(name);
+  id++;
+  startSensor(name, urls.kafka[req.sensor.send]);
+
+  name = `compute_${id}`;
+  containerNames.push(name);
+  id++;
+  startCompute(name, urls.kafka[req.compute.receive], urls.rabbitmq[req.compute.send]);
+
+  name = `receiver_${id}`;
+  containerNames.push(name);
+  id++;
+  startReceiver(name, urls.rabbitmq[req.receiver.receive]);
 
   return new Response("OK");
 }

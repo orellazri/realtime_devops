@@ -29,6 +29,13 @@ export function startCompute(name: string, kafka_url: string, rabbitmq_url: stri
     pipeline-compute`);
 }
 
+export function startReceiver(name: string, rabbitmq_url: string) {
+  runCommand(`docker run --rm -d --name ${name} \
+    --network host \
+    -e RABBITMQ_URL=${rabbitmq_url} \
+    pipeline-receiver`);
+}
+
 export function stopAll(names: string[]) {
   runCommand(`docker stop ${names.join(" ")}`);
 }
