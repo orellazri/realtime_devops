@@ -3,7 +3,7 @@ export enum CommType {
   cloud = "cloud"
 }
 
-export type CreateServicesRequest = {
+export type StartServicesRequest = {
   sensor: { send: CommType };
   compute: { send: CommType; receive: CommType };
   receiver: { receive: CommType };

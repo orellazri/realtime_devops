@@ -1,4 +1,4 @@
-import type { CommType, CreateServicesRequest } from "../utils/types";
+import type { CommType, StartServicesRequest } from "../utils/types";
 
 export const actions = {
   start: async ({ request, fetch }) => {
@@ -10,7 +10,7 @@ export const actions = {
       const compute_receive = data.get("compute_receive") as CommType;
       const receiver_receive = data.get("receiver_receive") as CommType;
 
-      const payload: CreateServicesRequest = {
+      const payload: StartServicesRequest = {
         sensor: { send: sensor_send },
         compute: { send: compute_send, receive: compute_receive },
         receiver: { receive: receiver_receive }
