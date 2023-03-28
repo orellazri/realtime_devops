@@ -1,6 +1,6 @@
-.PHONY: charts http redis kafka
+.PHONY: chart http redis kafka
 
-charts:
+chart:
 	go run main.go
 
 test: http redis kafka
