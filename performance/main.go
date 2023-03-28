@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	"github.com/orellazri/realtime_devops/performance/emqx"
 	"github.com/orellazri/realtime_devops/performance/helpers"
 	"github.com/orellazri/realtime_devops/performance/http"
 	"github.com/orellazri/realtime_devops/performance/kafka"
@@ -29,6 +30,13 @@ func generateKafkaItems() []opts.BarData {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer conn.Close()
+
+	return generateItems(conn)
+}
+
+func generateEMQXItems() []opts.BarData {
+	conn := emqx.NewConnection()
 	defer conn.Close()
 
 	return generateItems(conn)
@@ -72,9 +80,10 @@ func main() {
 	)
 
 	chart.SetXAxis([]string{"100", "1000"}).
-		AddSeries("Local HTTP", generateHTTPItems()).
-		AddSeries("Local Redis", generateRedisItems()).
-		AddSeries("Local Kafka", generateKafkaItems()).
+		AddSeries("HTTP", generateHTTPItems()).
+		AddSeries("Redis", generateRedisItems()).
+		AddSeries("Kafka", generateKafkaItems()).
+		AddSeries("EMQX", generateEMQXItems()).
 		SetSeriesOptions(
 			charts.WithLabelOpts(opts.Label{
 				Show:      true,
