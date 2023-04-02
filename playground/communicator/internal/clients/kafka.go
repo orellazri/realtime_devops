@@ -8,7 +8,8 @@ import (
 )
 
 type KafkaClient struct {
-	conn *kafka.Conn
+	conn   *kafka.Conn
+	reader *kafka.Reader
 }
 
 func NewKafkaClient(address string) (*KafkaClient, error) {
@@ -17,7 +18,13 @@ func NewKafkaClient(address string) (*KafkaClient, error) {
 		return nil, err
 	}
 
-	return &KafkaClient{conn}, nil
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers:     []string{address},
+		Topic:       "playground",
+		StartOffset: -1,
+	})
+
+	return &KafkaClient{conn, reader}, nil
 }
 
 func (client *KafkaClient) Send(message string) error {
@@ -32,5 +39,10 @@ func (client *KafkaClient) Send(message string) error {
 }
 
 func (client *KafkaClient) Receive() (string, error) {
-	return "", nil
+	message, err := client.reader.ReadMessage(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	return string(message.Value), nil
 }

@@ -1,8 +1,6 @@
 package communicator
 
 import (
-	"log"
-
 	"github.com/orellazri/realtime_devops/playground/communicator/internal/clients"
 )
 
@@ -24,7 +22,7 @@ type CommunicatorClient interface {
 }
 
 type Communicator struct {
-	id       int
+	ID       int
 	Sender   CommunicatorDetails
 	Receiver CommunicatorDetails
 }
@@ -42,14 +40,13 @@ func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicato
 	}
 	receiver.client = receiverClient
 
-	return &Communicator{Sender: sender, Receiver: receiver}, nil
+	return &Communicator{ID: id, Sender: sender, Receiver: receiver}, nil
 }
 
 func (communicator *Communicator) Send(message string) error {
-	log.Printf("[Communicator %v] Sending: %v", communicator.id, message)
 	return communicator.Sender.client.Send(message)
 }
 
 func (communicator *Communicator) Receive() (string, error) {
-	return "", nil
+	return communicator.Receiver.client.Receive()
 }
