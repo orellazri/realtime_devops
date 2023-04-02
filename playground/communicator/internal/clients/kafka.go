@@ -8,41 +8,60 @@ import (
 )
 
 type KafkaClient struct {
-	conn   *kafka.Conn
+	writer *kafka.Writer
 	reader *kafka.Reader
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func NewKafkaClient(address string) (*KafkaClient, error) {
-	conn, err := kafka.DialLeader(context.Background(), "tcp", address, "playground", 0)
-	if err != nil {
-		return nil, err
+	writer := &kafka.Writer{
+		Addr:                   kafka.TCP(address),
+		Topic:                  "playground",
+		AllowAutoTopicCreation: true,
 	}
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:     []string{address},
 		Topic:       "playground",
-		StartOffset: -1,
+		StartOffset: kafka.LastOffset,
+		MinBytes:    1,
+		MaxBytes:    10e6,
 	})
 
-	return &KafkaClient{conn, reader}, nil
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+
+	return &KafkaClient{writer, reader, ctx, cancel}, nil
 }
 
 func (client *KafkaClient) Send(message string) error {
-	client.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-	_, err := client.conn.WriteMessages(
-		kafka.Message{Value: []byte(message)},
+	return client.writer.WriteMessages(
+		client.ctx,
+		kafka.Message{Key: []byte("messageKey"), Value: []byte(message)},
 	)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (client *KafkaClient) Receive() (string, error) {
-	message, err := client.reader.ReadMessage(context.Background())
+	message, err := client.reader.ReadMessage(client.ctx)
 	if err != nil {
 		return "", err
 	}
 
 	return string(message.Value), nil
+}
+
+func (client *KafkaClient) Close() error {
+	client.cancel()
+
+	err := client.writer.Close()
+	if err != nil {
+		return err
+	}
+
+	err = client.reader.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

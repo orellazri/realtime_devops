@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"sync"
+	"time"
 
 	"github.com/orellazri/realtime_devops/playground/communicator/internal/communicator"
 )
@@ -31,7 +32,8 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		sendMessage := "hello 1"
+		
+		sendMessage := time.Now().String()
 		log.Printf("[Communicator %v] Sending: %v", firstComm.ID, sendMessage)
 		err = firstComm.Send(sendMessage)
 		if err != nil {
@@ -43,13 +45,20 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		receiveMessage, err := firstComm.Receive()
 		log.Printf("[Communicator %v] Receiving", firstComm.ID)
-		if err != nil {
-			log.Fatal(err)
+		for {
+			receiveMessage, err := firstComm.Receive()
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("[Communicator %v] Received: %v", firstComm.ID, receiveMessage)
 		}
-		log.Printf("[Communicator %v] Received: %v", firstComm.ID, receiveMessage)
 	}()
 
 	wg.Wait()
+
+	err = firstComm.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

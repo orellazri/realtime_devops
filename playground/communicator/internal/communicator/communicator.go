@@ -19,6 +19,7 @@ type CommunicatorDetails struct {
 type CommunicatorClient interface {
 	Send(message string) error
 	Receive() (string, error)
+	Close() error
 }
 
 type Communicator struct {
@@ -49,4 +50,17 @@ func (communicator *Communicator) Send(message string) error {
 
 func (communicator *Communicator) Receive() (string, error) {
 	return communicator.Receiver.client.Receive()
+}
+
+func (communicator *Communicator) Close() error {
+	err := communicator.Sender.client.Close()
+	if err != nil {
+		return err
+	}
+	err = communicator.Receiver.client.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
