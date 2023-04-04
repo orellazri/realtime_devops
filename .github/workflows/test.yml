@@ -2,6 +2,8 @@ name: Test
 
 on:
   push:
+    paths:
+      - playground/**
     branches: ["main"]
   pull_request:
     branches: ["main"]
@@ -18,8 +20,8 @@ jobs:
 
     - name: Build playground
       run: go build -v ./...
-      working-directory: ./playground
+      working-directory: playground
 
     - name: Test playground
       run: make test
-      working-directory: ./playground
+      working-directory: playground
