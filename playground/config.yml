@@ -1,0 +1,7 @@
+communicators:
+  - send:
+      type: kafka
+      address: 127.0.0.1:29092
+    receive:
+      type: kafka
+      address: 127.0.0.1:29092

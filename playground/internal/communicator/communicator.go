@@ -4,10 +4,10 @@ import (
 	"github.com/orellazri/realtime_devops/playground/internal/clients"
 )
 
-type CommunicatorType int
+type CommunicatorType string
 
 const (
-	TypeKafka CommunicatorType = iota
+	TypeKafka CommunicatorType = "kafka"
 )
 
 type CommunicatorDetails struct {
