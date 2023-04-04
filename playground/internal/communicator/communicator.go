@@ -4,16 +4,16 @@ import (
 	"github.com/orellazri/realtime_devops/playground/internal/clients"
 )
 
-type CommunicatorType string
-
 const (
-	TypeKafka CommunicatorType = "kafka"
+	TypeKafka string = "kafka"
+	TypeRedis string = "redis"
 )
 
 type CommunicatorDetails struct {
-	Type    CommunicatorType
+	Type    string
 	Address string
 	Topic   string
+	Delay   int
 	client  CommunicatorClient
 }
 
@@ -30,13 +30,29 @@ type Communicator struct {
 }
 
 func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicator, error) {
-	senderClient, err := clients.NewKafkaClient(sender.Address, sender.Topic)
+	// Create sender
+	var err error
+	var senderClient CommunicatorClient
+	var receiverClient CommunicatorClient
+
+	switch sender.Type {
+	case TypeKafka:
+		senderClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
+	case TypeRedis:
+		senderClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+	}
 	if err != nil {
 		return nil, err
 	}
 	sender.client = senderClient
 
-	receiverClient, err := clients.NewKafkaClient(receiver.Address, receiver.Topic)
+	// Create receiver
+	switch receiver.Type {
+	case TypeKafka:
+		receiverClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
+	case TypeRedis:
+		receiverClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+	}
 	if err != nil {
 		return nil, err
 	}

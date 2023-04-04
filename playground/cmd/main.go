@@ -43,7 +43,7 @@ func main() {
 					log.Fatal(err)
 				}
 				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
-				time.Sleep(1 * time.Second)
+				time.Sleep(time.Duration(comm.Sender.Delay) * time.Second)
 			}
 		}(comm)
 
@@ -58,6 +58,7 @@ func main() {
 					break
 				}
 				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
+				time.Sleep(time.Duration(comm.Receiver.Delay) * time.Second)
 			}
 		}(comm)
 	}

@@ -6,4 +6,4 @@ services:
     ports:
       - 6379:6379
     environment:
-      - REDIS_PASSWORD=redispw
+      - REDIS_PASSWORD=""
