@@ -68,7 +68,7 @@ func main() {
 		log.Printf("Closing communicator %v", comm.ID)
 		err = comm.Close()
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Error while closing communicator %v: %v", comm.ID, err)
 		}
 	}
 }
