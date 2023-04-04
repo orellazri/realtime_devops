@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	cfg, err := parser.ParseConfig()
+	cfg, err := parser.ParseConfig("config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
