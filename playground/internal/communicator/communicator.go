@@ -1,7 +1,7 @@
 package communicator
 
 import (
-	"github.com/orellazri/realtime_devops/playground/communicator/internal/clients"
+	"github.com/orellazri/realtime_devops/playground/internal/clients"
 )
 
 type CommunicatorType int

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/orellazri/realtime_devops/playground/communicator/internal/communicator"
+	"github.com/orellazri/realtime_devops/playground/internal/communicator"
 )
 
 func main() {

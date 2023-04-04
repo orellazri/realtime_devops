@@ -1,4 +1,4 @@
-module github.com/orellazri/realtime_devops/playground/communicator
+module github.com/orellazri/realtime_devops/playground
 
 go 1.19
 
