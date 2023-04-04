@@ -42,7 +42,7 @@ func (client *KafkaClient) Send(message string) error {
 }
 
 func (client *KafkaClient) Receive() (string, error) {
-	message, err := client.reader.ReadMessage(context.Background())
+	message, err := client.reader.ReadMessage(client.ctx)
 	if err != nil {
 		return "", err
 	}

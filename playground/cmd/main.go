@@ -51,7 +51,8 @@ func main() {
 			for {
 				receiveMessage, err := comm.Receive()
 				if err != nil {
-					log.Fatal(err)
+					log.Printf("[%v] Error while receiving: %v", comm.ID, err)
+					break
 				}
 				log.Printf("[%v] ⬅️ %v", comm.ID, receiveMessage)
 			}
