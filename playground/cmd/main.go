@@ -17,9 +17,9 @@ func main() {
 
 	var comms []*communicator.Communicator
 
-	for i, service := range cfg.Communicators {
-		log.Println("Starting communicator of type %v => %v", service.Send.Type, service.Receive.Type)
-		comm, err := communicator.NewCommunicator(i, service.Send, service.Receive)
+	for i, comm := range cfg.Communicators {
+		log.Printf("Starting communicator of type %v => %v", comm.Send.Type, comm.Receive.Type)
+		comm, err := communicator.NewCommunicator(i, comm.Send, comm.Receive)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -28,31 +28,33 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	for _, comm := range comms {
+		wg.Add(1)
+		go func(comm *communicator.Communicator) {
+			defer wg.Done()
 
-		sendMessage := time.Now().String()
-		log.Printf("[Communicator %v] Sending: %v", comms[0].ID, sendMessage)
-		err = comms[0].Send(sendMessage)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("[Communicator %v] Sent: %v", comms[0].ID, sendMessage)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		log.Printf("[Communicator %v] Receiving", comms[0].ID)
-		for {
-			receiveMessage, err := comms[0].Receive()
+			sendMessage := time.Now().String()
+			log.Printf("[Communicator %v] Sending: %v", comm.ID, sendMessage)
+			err = comm.Send(sendMessage)
 			if err != nil {
 				log.Fatal(err)
 			}
-			log.Printf("[Communicator %v] Received: %v", comms[0].ID, receiveMessage)
-		}
-	}()
+			log.Printf("[Communicator %v] Sent: %v", comm.ID, sendMessage)
+		}(comm)
+
+		wg.Add(1)
+		go func(comm *communicator.Communicator) {
+			defer wg.Done()
+			log.Printf("[Communicator %v] Receiving", comm.ID)
+			for {
+				receiveMessage, err := comm.Receive()
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Printf("[Communicator %v] Received: %v", comm.ID, receiveMessage)
+			}
+		}(comm)
+	}
 
 	wg.Wait()
 
