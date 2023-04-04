@@ -19,7 +19,7 @@ func main() {
 	log.Println("🆕 Creating communicators...")
 	var comms []*communicator.Communicator
 	for i, comm := range cfg.Communicators {
-		log.Printf("Creating communicator of type %v => %v", comm.Send.Type, comm.Receive.Type)
+		log.Printf("Creating communicator of type %v (%v) => %v (%v)", comm.Send.Type, comm.Send.Topic, comm.Receive.Type, comm.Receive.Topic)
 		comm, err := communicator.NewCommunicator(i, comm.Send, comm.Receive)
 		if err != nil {
 			log.Fatal(err)
@@ -37,12 +37,12 @@ func main() {
 
 			for {
 				sendMessage := time.Now().String()
-				log.Printf("[%v] Sending %v", comm.ID, sendMessage)
+				log.Printf("[%v] (%v): Sending %v", comm.ID, comm.Sender.Topic, sendMessage)
 				err = comm.Send(sendMessage)
 				if err != nil {
 					log.Fatal(err)
 				}
-				log.Printf("[%v] ➡️ %v", comm.ID, sendMessage)
+				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
 				time.Sleep(1 * time.Second)
 			}
 		}(comm)
@@ -50,14 +50,14 @@ func main() {
 		wg.Add(1)
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
-			log.Printf("[%v] Receiving", comm.ID)
+			log.Printf("[%v] (%v): Receiving", comm.ID, comm.Receiver.Topic)
 			for {
 				receiveMessage, err := comm.Receive()
 				if err != nil {
 					log.Printf("[%v] Error while receiving: %v", comm.ID, err)
 					break
 				}
-				log.Printf("[%v] ⬅️ %v", comm.ID, receiveMessage)
+				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
 			}
 		}(comm)
 	}

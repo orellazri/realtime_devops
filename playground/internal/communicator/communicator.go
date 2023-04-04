@@ -13,6 +13,7 @@ const (
 type CommunicatorDetails struct {
 	Type    CommunicatorType
 	Address string
+	Topic   string
 	client  CommunicatorClient
 }
 
@@ -29,13 +30,13 @@ type Communicator struct {
 }
 
 func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicator, error) {
-	senderClient, err := clients.NewKafkaClient(sender.Address)
+	senderClient, err := clients.NewKafkaClient(sender.Address, sender.Topic)
 	if err != nil {
 		return nil, err
 	}
 	sender.client = senderClient
 
-	receiverClient, err := clients.NewKafkaClient(receiver.Address)
+	receiverClient, err := clients.NewKafkaClient(receiver.Address, receiver.Topic)
 	if err != nil {
 		return nil, err
 	}

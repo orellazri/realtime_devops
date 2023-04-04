@@ -2,6 +2,8 @@ communicators:
   - send:
       type: kafka
       address: 127.0.0.1:29092
+      topic: playground-0
     receive:
       type: kafka
       address: 127.0.0.1:29092
+      topic: playground-0

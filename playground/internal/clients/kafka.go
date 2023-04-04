@@ -14,16 +14,16 @@ type KafkaClient struct {
 	cancel context.CancelFunc
 }
 
-func NewKafkaClient(address string) (*KafkaClient, error) {
+func NewKafkaClient(address, topic string) (*KafkaClient, error) {
 	writer := &kafka.Writer{
 		Addr:                   kafka.TCP(address),
-		Topic:                  "playground",
+		Topic:                  topic,
 		AllowAutoTopicCreation: true,
 	}
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:     []string{address},
-		Topic:       "playground",
+		Topic:       topic,
 		StartOffset: kafka.LastOffset,
 		MinBytes:    1,
 		MaxBytes:    10e6,
