@@ -10,10 +10,10 @@ import (
 
 var EXAMPLE_CONFIG = `
 communicators:
-  - send:
+  - sender:
       type: kafka
       address: 127.0.0.1:29092
-    receive:
+    receiver:
       type: kafka
       address: 127.0.0.1:29092
 `
@@ -31,8 +31,8 @@ func TestParseConfig(t *testing.T) {
 	assert.Nil(err)
 
 	assert.Equal(len(cfg.Communicators), 1)
-	assert.Equal(cfg.Communicators[0].Send.Type, communicator.TypeKafka)
-	assert.Equal(cfg.Communicators[0].Send.Address, "127.0.0.1:29092")
-	assert.Equal(cfg.Communicators[0].Receive.Type, communicator.TypeKafka)
-	assert.Equal(cfg.Communicators[0].Receive.Address, "127.0.0.1:29092")
+	assert.Equal(cfg.Communicators[0].Sender.Type, communicator.TypeKafka)
+	assert.Equal(cfg.Communicators[0].Sender.Address, "127.0.0.1:29092")
+	assert.Equal(cfg.Communicators[0].Receiver.Type, communicator.TypeKafka)
+	assert.Equal(cfg.Communicators[0].Receiver.Address, "127.0.0.1:29092")
 }

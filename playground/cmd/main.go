@@ -19,8 +19,8 @@ func main() {
 	log.Println("🆕 Creating communicators...")
 	var comms []*communicator.Communicator
 	for i, comm := range cfg.Communicators {
-		log.Printf("Creating communicator of type %v (%v) => %v (%v)", comm.Send.Type, comm.Send.Topic, comm.Receive.Type, comm.Receive.Topic)
-		comm, err := communicator.NewCommunicator(i, comm.Send, comm.Receive)
+		log.Printf("Creating communicator of type %v (%v) => %v (%v)", comm.Sender.Type, comm.Sender.Topic, comm.Receiver.Type, comm.Receiver.Topic)
+		comm, err := communicator.NewCommunicator(i, comm.Sender, comm.Receiver)
 		if err != nil {
 			log.Fatal(err)
 		}

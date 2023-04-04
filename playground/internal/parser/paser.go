@@ -8,8 +8,8 @@ import (
 )
 
 type comm struct {
-	Send    communicator.CommunicatorDetails
-	Receive communicator.CommunicatorDetails
+	Sender   communicator.CommunicatorDetails
+	Receiver communicator.CommunicatorDetails
 }
 
 type config struct {
