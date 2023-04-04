@@ -35,13 +35,16 @@ func main() {
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
 
-			sendMessage := time.Now().String()
-			log.Printf("[%v] Sending %v", comm.ID, sendMessage)
-			err = comm.Send(sendMessage)
-			if err != nil {
-				log.Fatal(err)
+			for {
+				sendMessage := time.Now().String()
+				log.Printf("[%v] Sending %v", comm.ID, sendMessage)
+				err = comm.Send(sendMessage)
+				if err != nil {
+					log.Fatal(err)
+				}
+				log.Printf("[%v] ➡️ %v", comm.ID, sendMessage)
+				time.Sleep(1 * time.Second)
 			}
-			log.Printf("[%v] ➡️ %v", comm.ID, sendMessage)
 		}(comm)
 
 		wg.Add(1)
