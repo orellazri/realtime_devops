@@ -15,10 +15,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Create communicators
+	log.Println("🆕 Creating communicators...")
 	var comms []*communicator.Communicator
-
 	for i, comm := range cfg.Communicators {
-		log.Printf("Starting communicator of type %v => %v", comm.Send.Type, comm.Receive.Type)
+		log.Printf("Creating communicator of type %v => %v", comm.Send.Type, comm.Receive.Type)
 		comm, err := communicator.NewCommunicator(i, comm.Send, comm.Receive)
 		if err != nil {
 			log.Fatal(err)
@@ -26,40 +27,44 @@ func main() {
 		comms = append(comms, comm)
 	}
 
+	// Start communicators
+	log.Println("🚀 Starting communicators...")
 	var wg sync.WaitGroup
-
 	for _, comm := range comms {
 		wg.Add(1)
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
 
 			sendMessage := time.Now().String()
-			log.Printf("[Communicator %v] Sending: %v", comm.ID, sendMessage)
+			log.Printf("[%v] Sending %v", comm.ID, sendMessage)
 			err = comm.Send(sendMessage)
 			if err != nil {
 				log.Fatal(err)
 			}
-			log.Printf("[Communicator %v] Sent: %v", comm.ID, sendMessage)
+			log.Printf("[%v] ➡️ %v", comm.ID, sendMessage)
 		}(comm)
 
 		wg.Add(1)
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
-			log.Printf("[Communicator %v] Receiving", comm.ID)
+			log.Printf("[%v] Receiving", comm.ID)
 			for {
 				receiveMessage, err := comm.Receive()
 				if err != nil {
 					log.Fatal(err)
 				}
-				log.Printf("[Communicator %v] Received: %v", comm.ID, receiveMessage)
+				log.Printf("[%v] ⬅️ %v", comm.ID, receiveMessage)
 			}
 		}(comm)
 	}
 
+	// Wait for communicators to finish
 	wg.Wait()
 
+	// Close communicators
+	log.Println("🚪 Closing communicators...")
 	for _, comm := range comms {
-		log.Printf("Closing service %v", comm.ID)
+		log.Printf("Closing communicator %v", comm.ID)
 		err = comm.Close()
 		if err != nil {
 			log.Fatal(err)
