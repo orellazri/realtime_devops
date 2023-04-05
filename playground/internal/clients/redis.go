@@ -10,8 +10,6 @@ import (
 type RedisClient struct {
 	client *redis.Client
 	topic  string
-	ctx    context.Context
-	cancel context.CancelFunc
 }
 
 func NewRedisClient(address, topic string) (*RedisClient, error) {
@@ -21,17 +19,21 @@ func NewRedisClient(address, topic string) (*RedisClient, error) {
 		DB:       0,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
-	return &RedisClient{client, topic, ctx, cancel}, nil
+	return &RedisClient{client, topic}, nil
 }
 
 func (client *RedisClient) Send(message string) error {
-	return client.client.Set(client.ctx, client.topic, message, 0).Err()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	return client.client.Set(ctx, client.topic, message, 0).Err()
 }
 
 func (client *RedisClient) Receive() (string, error) {
-	message, err := client.client.Get(client.ctx, client.topic).Result()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	message, err := client.client.Get(ctx, client.topic).Result()
 	if err != nil {
 		return "", err
 	}
@@ -40,6 +42,5 @@ func (client *RedisClient) Receive() (string, error) {
 }
 
 func (client *RedisClient) Close() error {
-	client.cancel()
 	return nil
 }
