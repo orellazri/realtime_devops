@@ -7,17 +7,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type comm struct {
+type ConfigCommunicator struct {
 	Sender   communicator.CommunicatorDetails
 	Receiver communicator.CommunicatorDetails
 }
 
-type config struct {
-	Communicators []comm
+type Config struct {
+	Communicators []ConfigCommunicator
 }
 
-func ParseConfig(path string) (*config, error) {
-	cfg := config{}
+func ParseConfig(path string) (*Config, error) {
+	cfg := Config{}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
