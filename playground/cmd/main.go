@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/orellazri/realtime_devops/playground/internal/communicator"
@@ -27,49 +31,69 @@ func main() {
 		comms = append(comms, comm)
 	}
 
+	var wg sync.WaitGroup
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// Start communicators
 	log.Println("🚀 Starting communicators...")
-	var wg sync.WaitGroup
 	for _, comm := range comms {
-		wg.Add(1)
+		wg.Add(2)
+
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
 			log.Printf("[%v] (%v): Sending", comm.ID, comm.Sender.Topic)
 			for {
-				sendMessage := time.Now().Format(time.RFC3339)
-				err = comm.Send(sendMessage)
-				if err != nil {
-					log.Printf("[%v] Error while sending: %v", comm.ID, err)
-					break
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					sendMessage := time.Now().Format(time.RFC3339)
+					err = comm.Send(sendMessage)
+					if err != nil {
+						log.Printf("[%v] Error while sending: %v", comm.ID, err)
+						break
+					}
+					log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
+					time.Sleep(time.Duration(comm.Sender.Delay) * time.Second)
 				}
-				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
-				time.Sleep(time.Duration(comm.Sender.Delay) * time.Second)
+
 			}
 		}(comm)
 
-		wg.Add(1)
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
 			log.Printf("[%v] (%v): Receiving", comm.ID, comm.Receiver.Topic)
 			for {
-				receiveMessage, err := comm.Receive()
-				if err != nil {
-					log.Printf("[%v] Error while receiving: %v", comm.ID, err)
-					break
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					receiveMessage, err := comm.Receive()
+					if err != nil {
+						log.Printf("[%v] Error while receiving: %v", comm.ID, err)
+						break
+					}
+					receiveTime, err := time.Parse(time.RFC3339, receiveMessage)
+					if err != nil {
+						log.Printf("[%v] Error while parsing timestamp: %v", comm.ID, err)
+						break
+					}
+					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
+					log.Printf("    %v", time.Since(receiveTime))
+					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Second)
 				}
-				receiveTime, err := time.Parse(time.RFC3339, receiveMessage)
-				if err != nil {
-					log.Printf("[%v] Error while parsing timestamp: %v", comm.ID, err)
-					break
-				}
-				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
-				log.Printf("    %v", time.Since(receiveTime))
-				time.Sleep(time.Duration(comm.Receiver.Delay) * time.Second)
 			}
 		}(comm)
 	}
 
-	// Wait for communicators to finish
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Println("Received SIGTERM. Stopping...")
+		cancel()
+	}()
+
 	wg.Wait()
 
 	// Close communicators
