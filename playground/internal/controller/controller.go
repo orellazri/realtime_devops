@@ -76,7 +76,6 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
 				time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 			}
-
 		}
 	}(comm)
 
