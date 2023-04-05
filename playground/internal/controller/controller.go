@@ -41,7 +41,10 @@ func HandleCommunicators(cfg *parser.Config) {
 
 	wg.Wait()
 
-	closeCommunicators(comms)
+	log.Println("🚪 Closing communicators...")
+	for _, comm := range comms {
+		closeCommunicator(comm)
+	}
 }
 
 func createCommunicator(index int, parserComm parser.ConfigCommunicator) *communicator.Communicator {
@@ -103,13 +106,10 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 	}(comm)
 }
 
-func closeCommunicators(comms []*communicator.Communicator) {
-	log.Println("🚪 Closing communicators...")
-	for _, comm := range comms {
-		log.Printf("Closing communicator %v", comm.ID)
-		err := comm.Close()
-		if err != nil {
-			log.Printf("Error while closing communicator %v: %v", comm.ID, err)
-		}
+func closeCommunicator(comm *communicator.Communicator) {
+	log.Printf("Closing communicator %v", comm.ID)
+	err := comm.Close()
+	if err != nil {
+		log.Printf("Error while closing communicator %v: %v", comm.ID, err)
 	}
 }
