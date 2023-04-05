@@ -16,10 +16,10 @@ communicators:
       topic: playground-0
       delay: 0
     receiver:
-      type: kafka
+      type: redis
       address: 127.0.0.1:29092
-      topic: playground-0
-      delay: 0
+      topic:
+      delay: 50
 `
 
 func TestParseConfig(t *testing.T) {
@@ -40,8 +40,8 @@ func TestParseConfig(t *testing.T) {
 	assert.Equal(cfg.Communicators[0].Sender.Topic, "playground-0")
 	assert.Equal(cfg.Communicators[0].Sender.Delay, 0)
 
-	assert.Equal(cfg.Communicators[0].Receiver.Type, communicator.TypeKafka)
+	assert.Equal(cfg.Communicators[0].Receiver.Type, communicator.TypeRedis)
 	assert.Equal(cfg.Communicators[0].Receiver.Address, "127.0.0.1:29092")
-	assert.Equal(cfg.Communicators[0].Receiver.Topic, "playground-0")
-	assert.Equal(cfg.Communicators[0].Sender.Delay, 0)
+	assert.Equal(cfg.Communicators[0].Receiver.Topic, "")
+	assert.Equal(cfg.Communicators[0].Receiver.Delay, 50)
 }
