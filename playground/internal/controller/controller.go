@@ -67,14 +67,14 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 			case <-ctx.Done():
 				return
 			default:
-				sendMessage := time.Now().Format(time.RFC3339)
+				sendMessage := time.Now().Format(time.RFC3339Nano)
 				err := comm.Send(sendMessage)
 				if err != nil {
 					log.Printf("[%v] Error while sending: %v", comm.ID, err)
 					break
 				}
 				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
-				time.Sleep(time.Duration(comm.Sender.Delay) * time.Second)
+				time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 			}
 
 		}
@@ -93,14 +93,14 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 					log.Printf("[%v] Error while receiving: %v", comm.ID, err)
 					break
 				}
-				receiveTime, err := time.Parse(time.RFC3339, receiveMessage)
+				receiveTime, err := time.Parse(time.RFC3339Nano, receiveMessage)
 				if err != nil {
 					log.Printf("[%v] Error while parsing timestamp: %v", comm.ID, err)
 					break
 				}
 				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
 				log.Printf("    %v", time.Since(receiveTime))
-				time.Sleep(time.Duration(comm.Receiver.Delay) * time.Second)
+				time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 			}
 		}
 	}(comm)
