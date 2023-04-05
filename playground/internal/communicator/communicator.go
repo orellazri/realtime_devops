@@ -30,33 +30,37 @@ type Communicator struct {
 }
 
 func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicator, error) {
-	// Create sender
 	var err error
 	var senderClient CommunicatorClient
 	var receiverClient CommunicatorClient
 
-	switch sender.Type {
-	case TypeKafka:
-		senderClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
-	case TypeRedis:
-		senderClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+	// Create sender
+	if sender.Type != "" {
+		switch sender.Type {
+		case TypeKafka:
+			senderClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
+		case TypeRedis:
+			senderClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+		}
+		if err != nil {
+			return nil, err
+		}
+		sender.client = senderClient
 	}
-	if err != nil {
-		return nil, err
-	}
-	sender.client = senderClient
 
 	// Create receiver
-	switch receiver.Type {
-	case TypeKafka:
-		receiverClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
-	case TypeRedis:
-		receiverClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+	if receiver.Type != "" {
+		switch receiver.Type {
+		case TypeKafka:
+			receiverClient, err = clients.NewKafkaClient(receiver.Address, receiver.Topic)
+		case TypeRedis:
+			receiverClient, err = clients.NewRedisClient(receiver.Address, receiver.Topic)
+		}
+		if err != nil {
+			return nil, err
+		}
+		receiver.client = receiverClient
 	}
-	if err != nil {
-		return nil, err
-	}
-	receiver.client = receiverClient
 
 	return &Communicator{ID: id, Sender: sender, Receiver: receiver}, nil
 }

@@ -48,7 +48,7 @@ func HandleCommunicators(cfg *parser.Config) {
 }
 
 func createCommunicator(index int, parserComm parser.ConfigCommunicator) *communicator.Communicator {
-	log.Printf("Creating communicator of type %v (%v) => %v (%v)", parserComm.Sender.Type, parserComm.Sender.Topic, parserComm.Receiver.Type, parserComm.Receiver.Topic)
+	log.Printf("Creating communicator [%v] ➡️ %v (%v) | ⬅️ %v (%v)", index, parserComm.Sender.Type, parserComm.Sender.Topic, parserComm.Receiver.Type, parserComm.Receiver.Topic)
 	comm, err := communicator.NewCommunicator(index, parserComm.Sender, parserComm.Receiver)
 	if err != nil {
 		log.Fatal(err)
