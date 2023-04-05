@@ -10,8 +10,6 @@ import (
 type KafkaClient struct {
 	writer *kafka.Writer
 	reader *kafka.Reader
-	ctx    context.Context
-	cancel context.CancelFunc
 }
 
 func NewKafkaClient(address, topic string) (*KafkaClient, error) {
@@ -19,6 +17,8 @@ func NewKafkaClient(address, topic string) (*KafkaClient, error) {
 		Addr:                   kafka.TCP(address),
 		Topic:                  topic,
 		AllowAutoTopicCreation: true,
+		BatchSize:              1,
+		RequiredAcks:           kafka.RequireOne,
 	}
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
@@ -29,14 +29,15 @@ func NewKafkaClient(address, topic string) (*KafkaClient, error) {
 		MaxBytes:    10e6,
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
-	return &KafkaClient{writer, reader, ctx, cancel}, nil
+	return &KafkaClient{writer, reader}, nil
 }
 
 func (client *KafkaClient) Send(message string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	return client.writer.WriteMessages(
-		client.ctx,
+		ctx,
 		kafka.Message{Key: []byte("messageKey"), Value: []byte(message)},
 	)
 }
@@ -51,8 +52,6 @@ func (client *KafkaClient) Receive() (string, error) {
 }
 
 func (client *KafkaClient) Close() error {
-	client.cancel()
-
 	err := client.writer.Close()
 	if err != nil {
 		return err
