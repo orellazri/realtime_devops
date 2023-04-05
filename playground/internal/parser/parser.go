@@ -9,7 +9,7 @@ import (
 
 type ConfigCommunicator struct {
 	Sender   communicator.CommunicatorDetails
-	Receiver communicator.CommunicatorDetails
+	Receiver communicator.CommunicatorDetails `yaml:"receiver,omitempty"`
 }
 
 type Config struct {

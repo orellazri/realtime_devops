@@ -70,13 +70,18 @@ func (communicator *Communicator) Receive() (string, error) {
 }
 
 func (communicator *Communicator) Close() error {
-	err := communicator.Sender.client.Close()
-	if err != nil {
-		return err
+	if communicator.Sender.Type != "" {
+		err := communicator.Sender.client.Close()
+		if err != nil {
+			return err
+		}
 	}
-	err = communicator.Receiver.client.Close()
-	if err != nil {
-		return err
+
+	if communicator.Receiver.Type != "" {
+		err := communicator.Receiver.client.Close()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
