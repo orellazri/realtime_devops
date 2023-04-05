@@ -34,13 +34,13 @@ func main() {
 		wg.Add(1)
 		go func(comm *communicator.Communicator) {
 			defer wg.Done()
-
+			log.Printf("[%v] (%v): Sending", comm.ID, comm.Sender.Topic)
 			for {
-				sendMessage := time.Now().String()
-				log.Printf("[%v] (%v): Sending %v", comm.ID, comm.Sender.Topic, sendMessage)
+				sendMessage := time.Now().Format(time.RFC3339)
 				err = comm.Send(sendMessage)
 				if err != nil {
-					log.Fatal(err)
+					log.Printf("[%v] Error while sending: %v", comm.ID, err)
+					break
 				}
 				log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage)
 				time.Sleep(time.Duration(comm.Sender.Delay) * time.Second)
@@ -57,7 +57,13 @@ func main() {
 					log.Printf("[%v] Error while receiving: %v", comm.ID, err)
 					break
 				}
+				receiveTime, err := time.Parse(time.RFC3339, receiveMessage)
+				if err != nil {
+					log.Printf("[%v] Error while parsing timestamp: %v", comm.ID, err)
+					break
+				}
 				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage)
+				log.Printf("    %v", time.Since(receiveTime))
 				time.Sleep(time.Duration(comm.Receiver.Delay) * time.Second)
 			}
 		}(comm)
