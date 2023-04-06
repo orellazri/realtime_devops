@@ -2,8 +2,10 @@ package clients
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/orellazri/realtime_devops/playground/internal/utils"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -32,26 +34,37 @@ func NewKafkaClient(address, topic string) (*KafkaClient, error) {
 	return &KafkaClient{writer, reader}, nil
 }
 
-func (client *KafkaClient) Send(message string) error {
+func (client *KafkaClient) Send(message utils.Message) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	data, err := json.Marshal(message)
+	if err != nil {
+		return err
+	}
+
 	return client.writer.WriteMessages(
 		ctx,
-		kafka.Message{Key: []byte("messageKey"), Value: []byte(message)},
+		kafka.Message{Key: []byte("messageKey"), Value: []byte(data)},
 	)
 }
 
-func (client *KafkaClient) Receive() (string, error) {
+func (client *KafkaClient) Receive() (utils.Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	message, err := client.reader.ReadMessage(ctx)
 	if err != nil {
-		return "", err
+		return utils.Message{}, err
 	}
 
-	return string(message.Value), nil
+	var data utils.Message
+	err = json.Unmarshal(message.Value, &data)
+	if err != nil {
+		return utils.Message{}, err
+	}
+
+	return data, nil
 }
 
 func (client *KafkaClient) Close() error {
