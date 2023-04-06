@@ -7,6 +7,11 @@ import (
 )
 
 type Message struct {
-	ID   uuid.UUID
-	Sent time.Time
+	ID       uuid.UUID
+	Sent     time.Time
+	Received time.Time
+}
+
+func GetMessageTime(message Message) time.Duration {
+	return message.Received.Sub(message.Sent)
 }

@@ -15,6 +15,8 @@ import (
 	"github.com/orellazri/realtime_devops/playground/internal/utils"
 )
 
+var messages []utils.Message
+
 func HandleCommunicators(cfg *parser.Config) {
 	// Create communicators
 	log.Println("🆕 Creating communicators")
@@ -37,7 +39,7 @@ func HandleCommunicators(cfg *parser.Config) {
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		log.Println("Received SIGTERM. Stopping")
+		log.Println("Received SIGTERM. Stopping playground")
 		cancel()
 	}()
 
@@ -47,6 +49,9 @@ func HandleCommunicators(cfg *parser.Config) {
 	for _, comm := range comms {
 		closeCommunicator(comm)
 	}
+
+	log.Println("📈 Statistics")
+	printStats()
 }
 
 func createCommunicator(index int, parserComm parser.ConfigCommunicator) *communicator.Communicator {
@@ -97,8 +102,11 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 						log.Printf("[%v] Error while receiving: %v", comm.ID, err)
 						break
 					}
+					receiveMessage.Received = time.Now()
+					messages = append(messages, receiveMessage)
+
 					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage.ID)
-					log.Printf("    %v", time.Since(receiveMessage.Sent))
+					log.Printf("    %v", utils.GetMessageTime(receiveMessage))
 					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 				}
 			}
@@ -112,4 +120,20 @@ func closeCommunicator(comm *communicator.Communicator) {
 	if err != nil {
 		log.Printf("Error while closing communicator %v: %v", comm.ID, err)
 	}
+}
+
+func printStats() {
+	fastestMessage := utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
+	var slowestMessage utils.Message
+	for _, message := range messages {
+		if utils.GetMessageTime(message) < utils.GetMessageTime(fastestMessage) {
+			fastestMessage = message
+		}
+		if utils.GetMessageTime(message) > utils.GetMessageTime(slowestMessage) {
+			slowestMessage = message
+		}
+	}
+
+	log.Printf("Fastest message took: %v\n", utils.GetMessageTime(fastestMessage))
+	log.Printf("Slowest message took: %v\n", utils.GetMessageTime(slowestMessage))
 }
