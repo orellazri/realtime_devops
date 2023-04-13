@@ -74,6 +74,7 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 				case <-ctx.Done():
 					return
 				default:
+					time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 					sendMessage := utils.Message{ID: uuid.New(), Sent: time.Now()}
 					err := comm.Send(sendMessage)
 					if err != nil {
@@ -81,7 +82,6 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 						break
 					}
 					log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage.ID)
-					time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 				}
 			}
 		}(comm)
@@ -97,6 +97,7 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 				case <-ctx.Done():
 					return
 				default:
+					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 					receiveMessage, err := comm.Receive()
 					if err != nil {
 						log.Printf("[%v] Error while receiving: %v", comm.ID, err)
@@ -107,7 +108,6 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 
 					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage.ID)
 					log.Printf("    %v", utils.GetMessageTime(receiveMessage))
-					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 				}
 			}
 		}(comm)
