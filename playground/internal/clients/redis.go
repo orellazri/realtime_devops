@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/orellazri/realtime_devops/playground/internal/utils"
@@ -33,15 +34,18 @@ func (client *RedisClient) Send(message utils.Message) error {
 		return err
 	}
 
-	return client.client.Set(ctx, client.topic, data, 0).Err()
+	return client.client.RPush(ctx, client.topic, data).Err()
 }
 
 func (client *RedisClient) Receive() (utils.Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	message, err := client.client.Get(ctx, client.topic).Result()
+	message, err := client.client.RPop(ctx, client.topic).Result()
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return utils.Message{}, &utils.NoMessageError{}
+		}
 		return utils.Message{}, err
 	}
 

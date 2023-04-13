@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"os/signal"
@@ -100,6 +101,12 @@ func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicat
 					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 					receiveMessage, err := comm.Receive()
 					if err != nil {
+						// Skip the error if this is a no message error (meaning we are still waiting
+						// to receive a message)
+						if errors.Is(err, &utils.NoMessageError{}) {
+							continue
+						}
+
 						log.Printf("[%v] Error while receiving: %v", comm.ID, err)
 						break
 					}
