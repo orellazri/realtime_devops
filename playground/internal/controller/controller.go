@@ -47,11 +47,11 @@ func createCommunicator(index int, parserComm parser.ConfigCommunicator) *commun
 func startPipeline(comms []*communicator.Communicator) {
 	for _, comm := range comms {
 		var currentMessage utils.Message
-		var lastMessage utils.Message
+		var lastMessage *utils.Message
 		if len(messages) > 0 {
-			lastMessage = messages[len(messages)-1]
+			lastMessage = &messages[len(messages)-1]
 		} else {
-			lastMessage = utils.Message{}
+			lastMessage = &utils.Message{}
 		}
 
 		if comm.Receiver.Type == "" && comm.Sender.Type != "" {
@@ -61,24 +61,21 @@ func startPipeline(comms []*communicator.Communicator) {
 			messages = append(messages, currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
-			for lastMessage.ID != currentMessage.ID {
+			for currentMessage.ID != lastMessage.ID {
 				currentMessage = receiveMessage(comm)
 			}
 
 			sendMessage(comm, &currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
-			for lastMessage.ID != currentMessage.ID {
+			for currentMessage.ID != lastMessage.ID {
 				currentMessage = receiveMessage(comm)
-
-				if lastMessage.ID != currentMessage.ID {
-					log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
-				} else {
-					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
-					lastMessage.Received = time.Now()
-					log.Printf("	%v", time.Since(lastMessage.Sent))
-				}
+				log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 			}
+
+			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+			lastMessage.Received = time.Now()
+			log.Printf("	%v", time.Since(lastMessage.Sent))
 		} else {
 			log.Fatalf("Communicator %v is not configured correctly", comm.ID)
 		}
