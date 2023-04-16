@@ -1,19 +1,20 @@
 # redis - 127.0.0.1:6379
 # kafka - 127.0.0.1:29092
 # rabbitmq - amqp://guest:guest@127.0.0.1:5672
+# emqx - tcp://127.0.0.1:1883
 
 meta:
-  num_messages: 10
+  num_messages: 5
 
 communicators:
   - sender:
-      type: rabbitmq
-      address: amqp://guest:guest@127.0.0.1:5672
+      type: emqx
+      address: tcp://127.0.0.1:1883
       topic: playground-0
       delay: 0
 
   - receiver:
-      type: rabbitmq
-      address: amqp://guest:guest@127.0.0.1:5672
+      type: emqx
+      address: tcp://127.0.0.1:1883
       topic: playground-0
       delay: 0
