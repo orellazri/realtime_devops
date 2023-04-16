@@ -70,7 +70,7 @@ func startPipeline(comms []*communicator.Communicator) {
 			// Last communicator - should only receive a message
 			for currentMessage.ID != lastMessage.ID {
 				currentMessage = receiveMessage(comm)
-				log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+				log.Printf("[%v] (%v) Skipping ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 			}
 
 			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
@@ -112,6 +112,7 @@ func closeCommunicator(comm *communicator.Communicator) {
 func printStats(numMessages int) {
 	fastestMessage := utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
 	var slowestMessage utils.Message
+	var totalTime time.Duration
 	for _, message := range messages {
 		if utils.GetMessageTime(message) < utils.GetMessageTime(fastestMessage) {
 			fastestMessage = message
@@ -119,9 +120,13 @@ func printStats(numMessages int) {
 		if utils.GetMessageTime(message) > utils.GetMessageTime(slowestMessage) {
 			slowestMessage = message
 		}
+
+		totalTime += utils.GetMessageTime(message)
 	}
 
-	log.Printf("Sent %v messages in %v", numMessages, messages[len(messages)-1].Received.Sub(messages[0].Sent))
-	log.Printf("Fastest message took: %v", utils.GetMessageTime(fastestMessage))
-	log.Printf("Slowest message took: %v", utils.GetMessageTime(slowestMessage))
+	log.Printf("Sent 10 messages")
+	log.Printf("Total time: %v", totalTime)
+	log.Printf("Fastest time: %v", utils.GetMessageTime(fastestMessage))
+	log.Printf("Slowest time: %v", utils.GetMessageTime(slowestMessage))
+	log.Printf("Average time: %v", totalTime / time.Duration(numMessages))
 }
