@@ -10,7 +10,7 @@ import (
 	"github.com/orellazri/realtime_devops/playground/internal/utils"
 )
 
-var messages []utils.Message
+var messages []*utils.Message
 
 func HandleCommunicators(cfg *parser.Config) {
 	// Create communicators
@@ -46,18 +46,18 @@ func createCommunicator(index int, parserComm parser.ConfigCommunicator) *commun
 
 func startPipeline(comms []*communicator.Communicator) {
 	for _, comm := range comms {
-		var currentMessage utils.Message
+		var currentMessage *utils.Message = &utils.Message{}
 		var lastMessage *utils.Message
 		if len(messages) > 0 {
-			lastMessage = &messages[len(messages)-1]
+			lastMessage = messages[len(messages)-1]
 		} else {
 			lastMessage = &utils.Message{}
 		}
 
 		if comm.Receiver.Type == "" && comm.Sender.Type != "" {
 			// First communicator - should generate a message and send it
-			currentMessage = utils.Message{ID: uuid.New(), Sent: time.Now()}
-			sendMessage(comm, &currentMessage)
+			currentMessage = &utils.Message{ID: uuid.New(), Sent: time.Now()}
+			sendMessage(comm, currentMessage)
 			messages = append(messages, currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
@@ -65,12 +65,12 @@ func startPipeline(comms []*communicator.Communicator) {
 				currentMessage = receiveMessage(comm)
 			}
 
-			sendMessage(comm, &currentMessage)
+			sendMessage(comm, currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
 			for currentMessage.ID != lastMessage.ID {
-				currentMessage = receiveMessage(comm)
 				log.Printf("[%v] (%v) Skipping ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+				currentMessage = receiveMessage(comm)
 			}
 
 			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
@@ -91,14 +91,14 @@ func sendMessage(comm *communicator.Communicator, message *utils.Message) {
 	time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 }
 
-func receiveMessage(comm *communicator.Communicator) utils.Message {
+func receiveMessage(comm *communicator.Communicator) *utils.Message {
 	message, err := comm.Receive()
 	if err != nil {
 		log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 	}
 	log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, message.ID)
 	time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
-	return message
+	return &message
 }
 
 func closeCommunicator(comm *communicator.Communicator) {
@@ -110,8 +110,8 @@ func closeCommunicator(comm *communicator.Communicator) {
 }
 
 func printStats(numMessages int) {
-	fastestMessage := utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
-	var slowestMessage utils.Message
+	fastestMessage := &utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
+	slowestMessage := &utils.Message{}
 	var totalTime time.Duration
 	for _, message := range messages {
 		if utils.GetMessageTime(message) < utils.GetMessageTime(fastestMessage) {
@@ -124,7 +124,7 @@ func printStats(numMessages int) {
 		totalTime += utils.GetMessageTime(message)
 	}
 
-	log.Printf("Sent 10 messages")
+	log.Printf("Sent %v messages", numMessages)
 	log.Printf("Total time: %v", totalTime)
 	log.Printf("Fastest time: %v", utils.GetMessageTime(fastestMessage))
 	log.Printf("Slowest time: %v", utils.GetMessageTime(slowestMessage))

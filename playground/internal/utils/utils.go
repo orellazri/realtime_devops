@@ -12,7 +12,7 @@ type Message struct {
 	Received time.Time
 }
 
-func GetMessageTime(message Message) time.Duration {
+func GetMessageTime(message *Message) time.Duration {
 	return message.Received.Sub(message.Sent)
 }
 

@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	TypeKafka string = "kafka"
-	TypeRedis string = "redis"
+	TypeKafka    string = "kafka"
+	TypeRedis    string = "redis"
+	TypeRabbitMQ string = "rabbitmq"
 )
 
 type CommunicatorDetails struct {
@@ -42,6 +43,8 @@ func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicato
 			senderClient, err = clients.NewKafkaClient(sender.Address, sender.Topic)
 		case TypeRedis:
 			senderClient, err = clients.NewRedisClient(sender.Address, sender.Topic)
+		case TypeRabbitMQ:
+			senderClient, err = clients.NewRabbitMQClient(sender.Address, sender.Topic)
 		}
 		if err != nil {
 			return nil, err
@@ -56,6 +59,8 @@ func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicato
 			receiverClient, err = clients.NewKafkaClient(receiver.Address, receiver.Topic)
 		case TypeRedis:
 			receiverClient, err = clients.NewRedisClient(receiver.Address, receiver.Topic)
+		case TypeRabbitMQ:
+			receiverClient, err = clients.NewRabbitMQClient(receiver.Address, receiver.Topic)
 		}
 		if err != nil {
 			return nil, err

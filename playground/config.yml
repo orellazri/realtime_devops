@@ -1,26 +1,19 @@
+# redis - 127.0.0.1:6379
+# kafka - 127.0.0.1:29092
+# rabbitmq - amqp://guest:guest@127.0.0.1:5672
+
 meta:
   num_messages: 10
 
 communicators:
   - sender:
-      type: redis
-      address: 127.0.0.1:6379
-      topic:
-      delay: 0
-
-  - receiver:
-      type: redis
-      address: 127.0.0.1:6379
-      topic:
-      delay: 0
-    sender:
-      type: kafka
-      address: 127.0.0.1:29092
+      type: rabbitmq
+      address: amqp://guest:guest@127.0.0.1:5672
       topic: playground-0
       delay: 0
 
   - receiver:
-      type: kafka
-      address: 127.0.0.1:29092
+      type: rabbitmq
+      address: amqp://guest:guest@127.0.0.1:5672
       topic: playground-0
       delay: 0
