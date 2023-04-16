@@ -15,8 +15,20 @@ communicators:
       address: 127.0.0.1:6379
       topic:
       delay: 1000
-    receiver:
+
+  - receiver:
       type: redis
       address: 127.0.0.1:6379
       topic:
-      delay: 0
+      delay: 1000
+    sender:
+      type: kafka
+      address: 127.0.0.1:29092
+      topic: playground-0
+      delay: 1000
+
+  - receiver:
+      type: kafka
+      address: 127.0.0.1:29092
+      topic: playground-0
+      delay: 1000
