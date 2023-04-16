@@ -7,12 +7,17 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type Metadata struct {
+	NumMessages int `yaml:"num_messages"`
+}
+
 type ConfigCommunicator struct {
 	Sender   communicator.CommunicatorDetails
 	Receiver communicator.CommunicatorDetails `yaml:"receiver,omitempty"`
 }
 
 type Config struct {
+	Meta          Metadata
 	Communicators []ConfigCommunicator
 }
 

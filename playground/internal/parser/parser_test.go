@@ -9,6 +9,8 @@ import (
 )
 
 var EXAMPLE_CONFIG = `
+meta:
+    num_messages: 5
 communicators:
   - sender:
       type: kafka
@@ -33,6 +35,8 @@ func TestParseConfig(t *testing.T) {
 
 	cfg, err := ParseConfig(configPath.Name())
 	assert.Nil(err)
+
+	assert.Equal(cfg.Meta.NumMessages, 5)
 
 	assert.Equal(len(cfg.Communicators), 1)
 	assert.Equal(cfg.Communicators[0].Sender.Type, communicator.TypeKafka)

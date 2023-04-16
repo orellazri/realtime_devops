@@ -1,15 +1,7 @@
-communicators:
-  # - sender:
-  #     type: kafka
-  #     address: 127.0.0.1:29092
-  #     topic: playground-0
-  #     delay: 1000
-  #   receiver:
-  #     type: kafka
-  #     address: 127.0.0.1:29092
-  #     topic: playground-0
-  #     delay: 0
+meta:
+  num_messages: 10
 
+communicators:
   - sender:
       type: redis
       address: 127.0.0.1:6379

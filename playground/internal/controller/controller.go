@@ -20,9 +20,9 @@ func HandleCommunicators(cfg *parser.Config) {
 		comms = append(comms, createCommunicator(i, comm))
 	}
 
-	// Start communicators
-	log.Println("🚀 Starting communicators")
-	for i := 0; i < 5; i++ {
+	// Start pipeline
+	log.Println("🚀 Starting pipeline")
+	for i := 0; i < cfg.Meta.NumMessages; i++ {
 		startPipeline(comms)
 	}
 
@@ -32,7 +32,7 @@ func HandleCommunicators(cfg *parser.Config) {
 	}
 
 	log.Println("📈 Statistics")
-	printStats()
+	printStats(cfg.Meta.NumMessages)
 }
 
 func createCommunicator(index int, parserComm parser.ConfigCommunicator) *communicator.Communicator {
@@ -107,7 +107,7 @@ func closeCommunicator(comm *communicator.Communicator) {
 	}
 }
 
-func printStats() {
+func printStats(numMessages int) {
 	fastestMessage := utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
 	var slowestMessage utils.Message
 	for _, message := range messages {
@@ -119,6 +119,7 @@ func printStats() {
 		}
 	}
 
-	log.Printf("Fastest message took: %v\n", utils.GetMessageTime(fastestMessage))
-	log.Printf("Slowest message took: %v\n", utils.GetMessageTime(slowestMessage))
+	log.Printf("Sent %v messages in %v", numMessages, messages[len(messages)-1].Received.Sub(messages[0].Sent))
+	log.Printf("Fastest message took: %v", utils.GetMessageTime(fastestMessage))
+	log.Printf("Slowest message took: %v", utils.GetMessageTime(slowestMessage))
 }
