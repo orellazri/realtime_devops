@@ -1,10 +1,7 @@
 package controller
 
 import (
-	"context"
-	"errors"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -80,6 +77,7 @@ func startPipeline(comms []*communicator.Communicator) {
 			}
 			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
 			msg.Received = time.Now()
+			messages = append(messages, msg)
 		} else {
 			log.Fatalf("Communicator %v is invalid", comm.ID);
 		}
