@@ -4,10 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,25 +23,11 @@ func HandleCommunicators(cfg *parser.Config) {
 		comms = append(comms, createCommunicator(i, comm))
 	}
 
-	var wg sync.WaitGroup
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// Start communicators
 	log.Println("🚀 Starting communicators")
-	for _, comm := range comms {
-		startCommunicator(ctx, &wg, comm)
+	for i := 0; i < 5; i++ {
+		startPipeline(comms)
 	}
-
-	// SIGTERM handler
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		log.Println("Received SIGTERM. Stopping playground")
-		cancel()
-	}()
-
-	wg.Wait()
 
 	log.Println("🚪 Closing communicators")
 	for _, comm := range comms {
@@ -64,60 +47,42 @@ func createCommunicator(index int, parserComm parser.ConfigCommunicator) *commun
 	return comm
 }
 
-func startCommunicator(ctx context.Context, wg *sync.WaitGroup, comm *communicator.Communicator) {
-	if comm.Sender.Type != "" {
-		wg.Add(1)
-		go func(comm *communicator.Communicator) {
-			defer wg.Done()
-			log.Printf("[%v] (%v): Sending", comm.ID, comm.Sender.Topic)
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-					time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
-					sendMessage := utils.Message{ID: uuid.New(), Sent: time.Now()}
-					err := comm.Send(sendMessage)
-					if err != nil {
-						log.Printf("[%v] Error while sending: %v", comm.ID, err)
-						break
-					}
-					log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, sendMessage.ID)
-				}
+func startPipeline(comms []*communicator.Communicator) {
+	for _, comm := range comms {
+		var msg utils.Message
+		var err error
+		if comm.Receiver.Type == "" && comm.Sender.Type != "" {
+			// First communicator - should generate a message and send it
+			msg = utils.Message{ID: uuid.New(), Sent: time.Now()}
+			err = comm.Send(msg)
+			if err != nil {
+				log.Fatalf("[%v] Error while sending: %v", comm.ID, err);
 			}
-		}(comm)
-	}
-
-	if comm.Receiver.Type != "" {
-		wg.Add(1)
-		go func(comm *communicator.Communicator) {
-			defer wg.Done()
-			log.Printf("[%v] (%v): Receiving", comm.ID, comm.Receiver.Topic)
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-					time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
-					receiveMessage, err := comm.Receive()
-					if err != nil {
-						// Skip the error if this is a no message error (meaning we are still waiting
-						// to receive a message)
-						if errors.Is(err, &utils.NoMessageError{}) {
-							continue
-						}
-
-						log.Printf("[%v] Error while receiving: %v", comm.ID, err)
-						break
-					}
-					receiveMessage.Received = time.Now()
-					messages = append(messages, receiveMessage)
-
-					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, receiveMessage.ID)
-					log.Printf("    %v", utils.GetMessageTime(receiveMessage))
-				}
+			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
+		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
+			// Middle communicators - should receive a message and send it
+			msg, err = comm.Receive()
+			if err != nil {
+				log.Fatalf("[%v] Error while receiving: %v", comm.ID, err);
 			}
-		}(comm)
+			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+
+			err = comm.Send(msg)
+			if err != nil {
+				log.Fatalf("[%v] Error while sending: %v", comm.ID, err);
+			}
+			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
+		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
+			// Last communicator - should only receive a message
+			msg, err = comm.Receive()
+			if err != nil {
+				log.Fatalf("[%v] Error while receiving: %v", comm.ID, err);
+			}
+			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+			msg.Received = time.Now()
+		} else {
+			log.Fatalf("Communicator %v is invalid", comm.ID);
+		}
 	}
 }
 
