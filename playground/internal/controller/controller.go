@@ -53,33 +53,40 @@ func startPipeline(comms []*communicator.Communicator) {
 			msg = utils.Message{ID: uuid.New(), Sent: time.Now()}
 			err = comm.Send(msg)
 			if err != nil {
-				log.Fatalf("[%v] Error while sending: %v", comm.ID, err);
+				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
 			}
 			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
+			messages = append(messages, msg)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
-			msg, err = comm.Receive()
-			if err != nil {
-				log.Fatalf("[%v] Error while receiving: %v", comm.ID, err);
+			for messages[len(messages)-1].ID != msg.ID {
+				msg, err = comm.Receive()
+				if err != nil {
+					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
+				}
+				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
 			}
-			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
 
 			err = comm.Send(msg)
 			if err != nil {
-				log.Fatalf("[%v] Error while sending: %v", comm.ID, err);
+				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
 			}
 			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
-			msg, err = comm.Receive()
-			if err != nil {
-				log.Fatalf("[%v] Error while receiving: %v", comm.ID, err);
+			for messages[len(messages)-1].ID != msg.ID {
+				msg, err = comm.Receive()
+				if err != nil {
+					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
+				}
+				if messages[len(messages)-1].ID != msg.ID {
+					log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+				} else {
+					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+				}
 			}
-			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
-			msg.Received = time.Now()
-			messages = append(messages, msg)
 		} else {
-			log.Fatalf("Communicator %v is invalid", comm.ID);
+			log.Fatalf("Communicator %v is not configured correctly", comm.ID)
 		}
 	}
 }
