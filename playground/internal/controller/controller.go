@@ -88,6 +88,7 @@ func sendMessage(comm *communicator.Communicator, message *utils.Message) {
 		log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
 	}
 	log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, message.ID)
+	time.Sleep(time.Duration(comm.Sender.Delay) * time.Millisecond)
 }
 
 func receiveMessage(comm *communicator.Communicator) utils.Message {
@@ -96,6 +97,7 @@ func receiveMessage(comm *communicator.Communicator) utils.Message {
 		log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 	}
 	log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, message.ID)
+	time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 	return message
 }
 
