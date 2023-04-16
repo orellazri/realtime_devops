@@ -25,7 +25,7 @@ func NewRedisClient(address, topic string) (*RedisClient, error) {
 	return &RedisClient{client, topic}, nil
 }
 
-func (client *RedisClient) Send(message utils.Message) error {
+func (client *RedisClient) Send(message *utils.Message) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

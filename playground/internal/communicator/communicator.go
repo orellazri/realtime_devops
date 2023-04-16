@@ -19,7 +19,7 @@ type CommunicatorDetails struct {
 }
 
 type CommunicatorClient interface {
-	Send(message utils.Message) error
+	Send(message *utils.Message) error
 	Receive() (utils.Message, error)
 	Close() error
 }
@@ -66,7 +66,7 @@ func NewCommunicator(id int, sender, receiver CommunicatorDetails) (*Communicato
 	return &Communicator{ID: id, Sender: sender, Receiver: receiver}, nil
 }
 
-func (communicator *Communicator) Send(message utils.Message) error {
+func (communicator *Communicator) Send(message *utils.Message) error {
 	return communicator.Sender.client.Send(message)
 }
 

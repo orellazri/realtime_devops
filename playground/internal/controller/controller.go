@@ -47,7 +47,6 @@ func createCommunicator(index int, parserComm parser.ConfigCommunicator) *commun
 func startPipeline(comms []*communicator.Communicator) {
 	for _, comm := range comms {
 		var currentMessage utils.Message
-		var err error
 		var lastMessage utils.Message
 		if len(messages) > 0 {
 			lastMessage = messages[len(messages)-1]
@@ -58,34 +57,20 @@ func startPipeline(comms []*communicator.Communicator) {
 		if comm.Receiver.Type == "" && comm.Sender.Type != "" {
 			// First communicator - should generate a message and send it
 			currentMessage = utils.Message{ID: uuid.New(), Sent: time.Now()}
-			err = comm.Send(currentMessage)
-			if err != nil {
-				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
-			}
-			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, currentMessage.ID)
+			sendMessage(comm, &currentMessage)
 			messages = append(messages, currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
 			for lastMessage.ID != currentMessage.ID {
-				currentMessage, err = comm.Receive()
-				if err != nil {
-					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
-				}
-				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+				currentMessage = receiveMessage(comm)
 			}
 
-			err = comm.Send(currentMessage)
-			if err != nil {
-				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
-			}
-			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, currentMessage.ID)
+			sendMessage(comm, &currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
 			for lastMessage.ID != currentMessage.ID {
-				currentMessage, err = comm.Receive()
-				if err != nil {
-					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
-				}
+				currentMessage = receiveMessage(comm)
+
 				if lastMessage.ID != currentMessage.ID {
 					log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 				} else {
@@ -98,6 +83,23 @@ func startPipeline(comms []*communicator.Communicator) {
 			log.Fatalf("Communicator %v is not configured correctly", comm.ID)
 		}
 	}
+}
+
+func sendMessage(comm *communicator.Communicator, message *utils.Message) {
+	err := comm.Send(message)
+	if err != nil {
+		log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
+	}
+	log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, message.ID)
+}
+
+func receiveMessage(comm *communicator.Communicator) utils.Message {
+	message, err := comm.Receive()
+	if err != nil {
+		log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
+	}
+	log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, message.ID)
+	return message
 }
 
 func closeCommunicator(comm *communicator.Communicator) {
