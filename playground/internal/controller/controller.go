@@ -128,5 +128,5 @@ func printStats(numMessages int) {
 	log.Printf("Total time: %v", totalTime)
 	log.Printf("Fastest time: %v", utils.GetMessageTime(fastestMessage))
 	log.Printf("Slowest time: %v", utils.GetMessageTime(slowestMessage))
-	log.Printf("Average time: %v", totalTime / time.Duration(numMessages))
+	log.Printf("Average time: %v", totalTime/time.Duration(numMessages))
 }
