@@ -46,43 +46,52 @@ func createCommunicator(index int, parserComm parser.ConfigCommunicator) *commun
 
 func startPipeline(comms []*communicator.Communicator) {
 	for _, comm := range comms {
-		var msg utils.Message
+		var currentMessage utils.Message
 		var err error
+		var lastMessage utils.Message
+		if len(messages) > 0 {
+			lastMessage = messages[len(messages)-1]
+		} else {
+			lastMessage = utils.Message{}
+		}
+
 		if comm.Receiver.Type == "" && comm.Sender.Type != "" {
 			// First communicator - should generate a message and send it
-			msg = utils.Message{ID: uuid.New(), Sent: time.Now()}
-			err = comm.Send(msg)
+			currentMessage = utils.Message{ID: uuid.New(), Sent: time.Now()}
+			err = comm.Send(currentMessage)
 			if err != nil {
 				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
 			}
-			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
-			messages = append(messages, msg)
+			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, currentMessage.ID)
+			messages = append(messages, currentMessage)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
-			for messages[len(messages)-1].ID != msg.ID {
-				msg, err = comm.Receive()
+			for lastMessage.ID != currentMessage.ID {
+				currentMessage, err = comm.Receive()
 				if err != nil {
 					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 				}
-				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+				log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 			}
 
-			err = comm.Send(msg)
+			err = comm.Send(currentMessage)
 			if err != nil {
 				log.Fatalf("[%v] Error while sending: %v", comm.ID, err)
 			}
-			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, msg.ID)
+			log.Printf("[%v] (%v) ➡️ %v", comm.ID, comm.Sender.Topic, currentMessage.ID)
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
-			for messages[len(messages)-1].ID != msg.ID {
-				msg, err = comm.Receive()
+			for lastMessage.ID != currentMessage.ID {
+				currentMessage, err = comm.Receive()
 				if err != nil {
 					log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 				}
-				if messages[len(messages)-1].ID != msg.ID {
-					log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+				if lastMessage.ID != currentMessage.ID {
+					log.Printf("[%v] (%v) SKIP ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 				} else {
-					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, msg.ID)
+					log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+					lastMessage.Received = time.Now()
+					log.Printf("	%v", time.Since(lastMessage.Sent))
 				}
 			}
 		} else {
