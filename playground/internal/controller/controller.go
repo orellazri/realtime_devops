@@ -69,7 +69,9 @@ func startPipeline(comms []*communicator.Communicator) {
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
 			for currentMessage.ID != lastMessage.ID {
-				log.Printf("[%v] (%v) Skipping ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+				if currentMessage.ID != uuid.Nil {
+					log.Printf("[%v] (%v) Skipping ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
+				}
 				currentMessage = receiveMessage(comm)
 			}
 
@@ -96,7 +98,6 @@ func receiveMessage(comm *communicator.Communicator) *utils.Message {
 	if err != nil {
 		log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 	}
-	log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, message.ID)
 	time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 	return &message
 }
