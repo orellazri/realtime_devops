@@ -1,5 +1,5 @@
 run:
-	go run cmd/main.go
+	LOG_LEVEL=trace go run cmd/main.go
 
 test:
 	go test ./...

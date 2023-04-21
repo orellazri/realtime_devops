@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"log"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/orellazri/realtime_devops/playground/internal/communicator"
 	"github.com/orellazri/realtime_devops/playground/internal/parser"
 	"github.com/orellazri/realtime_devops/playground/internal/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 var messages []*utils.Message
@@ -62,7 +62,7 @@ func startPipeline(comms []*communicator.Communicator) {
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
 			for currentMessage.ID != lastMessage.ID {
-				log.Printf("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
+				log.Tracef("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
 				currentMessage = receiveMessage(comm)
 			}
 
@@ -70,7 +70,7 @@ func startPipeline(comms []*communicator.Communicator) {
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
 			for currentMessage.ID != lastMessage.ID {
-				log.Printf("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
+				log.Tracef("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
 				currentMessage = receiveMessage(comm)
 			}
 
