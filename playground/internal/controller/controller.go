@@ -62,6 +62,7 @@ func startPipeline(comms []*communicator.Communicator) {
 		} else if comm.Receiver.Type != "" && comm.Sender.Type != "" {
 			// Middle communicators - should receive a message and send it
 			for currentMessage.ID != lastMessage.ID {
+				log.Printf("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
 				currentMessage = receiveMessage(comm)
 			}
 
@@ -69,14 +70,13 @@ func startPipeline(comms []*communicator.Communicator) {
 		} else if comm.Receiver.Type != "" && comm.Sender.Type == "" {
 			// Last communicator - should only receive a message
 			for currentMessage.ID != lastMessage.ID {
-				if currentMessage.ID != uuid.Nil {
-					log.Printf("[%v] (%v) Skipping ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
-				}
+				log.Printf("\t[%v] Skipped %v", comm.ID, currentMessage.ID)
 				currentMessage = receiveMessage(comm)
 			}
 
 			lastMessage.Received = time.Now()
-			log.Printf("	%v", time.Since(lastMessage.Sent))
+			log.Printf("\t[%v] %v", comm.ID, time.Since(lastMessage.Sent))
+			log.Println("---------------")
 		} else {
 			log.Fatalf("Communicator %v is not configured correctly", comm.ID)
 		}
