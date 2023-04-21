@@ -75,7 +75,6 @@ func startPipeline(comms []*communicator.Communicator) {
 				currentMessage = receiveMessage(comm)
 			}
 
-			log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, currentMessage.ID)
 			lastMessage.Received = time.Now()
 			log.Printf("	%v", time.Since(lastMessage.Sent))
 		} else {
@@ -98,6 +97,7 @@ func receiveMessage(comm *communicator.Communicator) *utils.Message {
 	if err != nil {
 		log.Fatalf("[%v] Error while receiving: %v", comm.ID, err)
 	}
+	log.Printf("[%v] (%v) ⬅️ %v", comm.ID, comm.Receiver.Topic, message.ID)
 	time.Sleep(time.Duration(comm.Receiver.Delay) * time.Millisecond)
 	return &message
 }
