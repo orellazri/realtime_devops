@@ -4,17 +4,17 @@
 # emqx - tcp://127.0.0.1:1883
 
 meta:
-  num_messages: 5
+  num_messages: 10
 
 communicators:
   - sender:
-      type: emqx
-      address: tcp://127.0.0.1:1883
+      type: kafka
+      address: 127.0.0.1:29092
       topic: playground-0
       delay: 0
 
   - receiver:
-      type: emqx
-      address: tcp://127.0.0.1:1883
+      type: kafka
+      address: 127.0.0.1:29092
       topic: playground-0
       delay: 0
