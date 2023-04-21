@@ -18,25 +18,3 @@ communicators:
       address: 127.0.0.1:6379
       topic: playground-0
       delay: 0
-    sender:
-      type: kafka
-      address: 127.0.0.1:29092
-      topic: playground-0
-      delay: 0
-
-  - receiver:
-      type: kafka
-      address: 127.0.0.1:29092
-      topic: playground-0
-      delay: 0
-    sender:
-      type: kafka
-      address: 127.0.0.1:29092
-      topic: playground-0
-      delay: 0
-
-  - receiver:
-      type: kafka
-      address: 127.0.0.1:29092
-      topic: playground-0
-      delay: 0
