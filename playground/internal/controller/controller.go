@@ -149,6 +149,12 @@ func printStats(numMessages int) {
 	}
 	log.Printf("Average: %.2fms", mean)
 
+	variance, err := stats.Variance(allTimes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Variance: %.2fms", variance)
+
 	percentile90, err := stats.Percentile(allTimes, 90)
 	if err != nil {
 		log.Fatal(err)
