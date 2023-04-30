@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"sort"
 	"time"
 
 	"github.com/google/uuid"
@@ -111,23 +112,24 @@ func closeCommunicator(comm *communicator.Communicator) {
 }
 
 func printStats(numMessages int) {
-	fastestMessage := &utils.Message{ID: uuid.New(), Sent: time.Time{}, Received: time.Now()}
-	slowestMessage := &utils.Message{}
-	var totalTime time.Duration
-	for _, message := range messages {
-		if utils.GetMessageTime(message) < utils.GetMessageTime(fastestMessage) {
-			fastestMessage = message
-		}
-		if utils.GetMessageTime(message) > utils.GetMessageTime(slowestMessage) {
-			slowestMessage = message
-		}
+	// Create array to store all message times
+	allTimes := make([]time.Duration, numMessages)
+	for i, message := range messages {
+		allTimes[i] = utils.GetMessageTime(message)
+	}
 
-		totalTime += utils.GetMessageTime(message)
+	// Sort times array
+	sort.Slice(allTimes, func(i, j int) bool { return allTimes[i] < allTimes[j] })
+
+	// Calculate total time (sum of all times)
+	var totalTime time.Duration
+	for _, time := range allTimes {
+		totalTime += time
 	}
 
 	log.Printf("Sent %v messages", numMessages)
 	log.Printf("Total time: %v", totalTime)
-	log.Printf("Fastest time: %v", utils.GetMessageTime(fastestMessage))
-	log.Printf("Slowest time: %v", utils.GetMessageTime(slowestMessage))
+	log.Printf("Fastest time: %v", allTimes[0])
+	log.Printf("Slowest time: %v", allTimes[len(allTimes) - 1])
 	log.Printf("Average time: %v", totalTime/time.Duration(numMessages))
 }
