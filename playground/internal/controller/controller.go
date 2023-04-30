@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/montanaflynn/stats"
 	"github.com/orellazri/realtime_devops/playground/internal/communicator"
 	"github.com/orellazri/realtime_devops/playground/internal/parser"
 	"github.com/orellazri/realtime_devops/playground/internal/utils"
@@ -113,23 +114,50 @@ func closeCommunicator(comm *communicator.Communicator) {
 
 func printStats(numMessages int) {
 	// Create array to store all message times
-	allTimes := make([]time.Duration, numMessages)
+	allTimes := make([]float64, numMessages)
 	for i, message := range messages {
-		allTimes[i] = utils.GetMessageTime(message)
+		allTimes[i] = float64(utils.GetMessageTime(message).Microseconds()) / float64(1000)
 	}
 
 	// Sort times array
 	sort.Slice(allTimes, func(i, j int) bool { return allTimes[i] < allTimes[j] })
 
 	// Calculate total time (sum of all times)
-	var totalTime time.Duration
+	var totalTime float64
 	for _, time := range allTimes {
 		totalTime += time
 	}
 
 	log.Printf("Sent %v messages", numMessages)
-	log.Printf("Total time: %v", totalTime)
-	log.Printf("Fastest time: %v", allTimes[0])
-	log.Printf("Slowest time: %v", allTimes[len(allTimes) - 1])
-	log.Printf("Average time: %v", totalTime/time.Duration(numMessages))
+	log.Printf("Total time: %.2fms", totalTime)
+
+	min, err := stats.Min(allTimes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Fastest time: %.2fms", min)
+
+	max, err := stats.Max(allTimes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Slowest time: %.2fms", max)
+
+	mean, err := stats.Mean(allTimes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Average: %.2fms", mean)
+
+	percentile90, err := stats.Percentile(allTimes, 90)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("90%% Percentile: %.2fms", percentile90)
+
+	percentile99, err := stats.Percentile(allTimes, 99)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("99%% Percentile: %.2fms", percentile99)
 }
