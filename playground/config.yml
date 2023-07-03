@@ -4,7 +4,7 @@
 # emqx - tcp://127.0.0.1:1883
 
 meta:
-  num_messages: 10
+  num_messages: 100
 
 communicators:
   - sender:
@@ -19,13 +19,13 @@ communicators:
       topic: playground-0
       delay: 0
     sender:
-      type: redis
-      address: 127.0.0.1:6379
+      type: rabbitmq
+      address: amqp://guest:guest@127.0.0.1:5672
       topic: playground-0
       delay: 0
 
   - receiver:
-      type: redis
-      address: 127.0.0.1:6379
+      type: rabbitmq
+      address: amqp://guest:guest@127.0.0.1:5672
       topic: playground-0
       delay: 0
