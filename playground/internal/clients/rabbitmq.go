@@ -94,12 +94,12 @@ func (client *RabbitMQClient) Receive() (utils.Message, error) {
 }
 
 func (client *RabbitMQClient) Close() error {
-	err := client.conn.Close()
+	err := client.ch.Close()
 	if err != nil {
 		return err
 	}
 
-	err = client.ch.Close()
+	err = client.conn.Close()
 	if err != nil {
 		return err
 	}
