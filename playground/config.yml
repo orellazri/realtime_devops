@@ -18,14 +18,3 @@ communicators:
       address: 127.0.0.1:6379
       topic: playground-0
       delay: 0
-    sender:
-      type: rabbitmq
-      address: amqp://guest:guest@127.0.0.1:5672
-      topic: playground-0
-      delay: 0
-
-  - receiver:
-      type: rabbitmq
-      address: amqp://guest:guest@127.0.0.1:5672
-      topic: playground-0
-      delay: 0
